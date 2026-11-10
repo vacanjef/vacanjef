@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/VacanJef.Core/VacanJef.Core.csproj" />
+    <Project Path="src/VacanJef.Infrastructure/VacanJef.Infrastructure.csproj" />
+    <Project Path="src/VacanJef.Web/VacanJef.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/VacanJef.Tests/VacanJef.Tests.csproj" />
+  </Folder>
+</Solution>
