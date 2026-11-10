@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main, 'feature/**']
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-test:
+    name: Compilar y probar
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Restaurar
+        run: dotnet restore
+      - name: Compilar
+        run: dotnet build --no-restore -c Release
+      - name: Pruebas
+        run: dotnet test --no-build -c Release --verbosity normal
+      - name: Dependencias vulnerables
+        run: dotnet list package --vulnerable --include-transitive
