@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <Company>VacanJef - SENA ADSO ficha 3169901</Company>
+    <Authors>Juan Camilo Sarrazola Agudelo; Jeferson Estiven Vargas García; Laura Vanessa Henao López; Carlos Alfredo Santiz</Authors>
+  </PropertyGroup>
+</Project>

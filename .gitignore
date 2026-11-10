@@ -1,8 +1,26 @@
+# Compilación
 bin/
 obj/
+TestResults/
+*.trx
+coverage/
+
+# Editores
 .vs/
+.vscode/
+.idea/
 *.user
 *.suo
+
+# Configuración local y secretos
 appsettings.Development.json
+appsettings.*.local.json
 .env
-TestResults/
+*.pfx
+
+# Fotos subidas en desarrollo
+src/VacanJef.Web/wwwroot/uploads/
+
+# Sistema operativo
+Thumbs.db
+.DS_Store
