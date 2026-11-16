@@ -24,3 +24,6 @@ src/VacanJef.Web/wwwroot/uploads/
 # Sistema operativo
 Thumbs.db
 .DS_Store
+
+# Herramientas externas descargadas (MediaMTX, etc.)
+herramientas/bin/
