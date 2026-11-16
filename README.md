@@ -30,7 +30,16 @@ C# · .NET 10 · ASP.NET Core MVC · Razor · Bootstrap 5 · Entity Framework Co
     dotnet test
     dotnet run --project src/VacanJef.Web
 
-## Flujo de trabajo
+## Flujo de trabajo (Guía de Estructura y Evidencias, sección 6)
 
-Cada integrante trabaja en su rama `feature/...` y une sus cambios a `main` con un Pull Request revisado por otro integrante.
+| Rama | Uso | Sale de | Se integra a |
+| --- | --- | --- | --- |
+| `main` | Versión estable y entregable. Nadie sube cambios directamente. | — | — |
+| `dev` | Integración del trabajo del equipo. | `main` | — |
+| `feature/HU-xxx-descripcion` | Una rama por historia de usuario. | `dev` | `dev` |
+| `fix/xxx` | Corrección de errores no urgentes. | `dev` | `dev` |
+| `release/vX.Y.Z` | Preparar una entrega: se congela y se valida. | `dev` | `main` y `dev` |
+| `hotfix/xxx` | Error crítico en `main`. | `main` | `main` y `dev` |
+
+Todo cambio entra por Pull Request, revisado por otro integrante y con el CI en verde.
 Commits: `feat`, `fix`, `refactor`, `test`, `docs`, `ci`, `chore`.
