@@ -1,0 +1,23 @@
+@* Enlaces de sesión en la barra superior (HU-001, HU-002). Estilos: TT-003 *@
+<ul class="navbar-nav align-items-lg-center gap-2">
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <li class="nav-item">
+            <span class="navbar-text">@User.Identity.Name</span>
+        </li>
+        <li class="nav-item">
+            <form asp-controller="Cuenta" asp-action="CerrarSesion" method="post" class="d-inline">
+                <button type="submit" class="btn btn-outline-light btn-sm">Cerrar sesión</button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link" asp-controller="Cuenta" asp-action="IniciarSesion">Iniciar sesión</a>
+        </li>
+        <li class="nav-item">
+            <a class="btn btn-light btn-sm" asp-controller="Cuenta" asp-action="Registro">Crear cuenta</a>
+        </li>
+    }
+</ul>
