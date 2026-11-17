@@ -19,7 +19,28 @@ jobs:
         run: dotnet restore
       - name: Compilar
         run: dotnet build --no-restore -c Release
-      - name: Pruebas
-        run: dotnet test --no-build -c Release --verbosity normal
+      - name: Pruebas con cobertura
+        run: >
+          dotnet test --no-build -c Release --verbosity normal
+          --settings coverlet.runsettings
+          --collect:"XPlat Code Coverage"
+          --results-directory coverage
+      - name: Reporte de cobertura
+        if: success() || failure()
+        uses: danielpalme/ReportGenerator-GitHub-Action@5
+        with:
+          reports: 'coverage/**/coverage.cobertura.xml'
+          targetdir: 'coverage/reporte'
+          reporttypes: 'HtmlInline;MarkdownSummaryGithub'
+      - name: Resumen de cobertura
+        if: success() || failure()
+        run: cat coverage/reporte/SummaryGithub.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Subir reporte de cobertura
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-cobertura
+          path: coverage/reporte
+          retention-days: 14
       - name: Dependencias vulnerables
         run: dotnet list package --vulnerable --include-transitive
