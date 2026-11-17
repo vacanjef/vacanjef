@@ -5,6 +5,7 @@ using VacanJef.Core.Constantes;
 using VacanJef.Core.Entities;
 using VacanJef.Infrastructure.Data;
 using VacanJef.Web.Models.Cuenta;
+using VacanJef.Web.Seguridad;
 
 namespace VacanJef.Web.Controllers;
 
@@ -63,6 +64,68 @@ public class CuentaController(
         await gestorSesion.SignInAsync(usuario, isPersistent: false);
         return RedirectToAction("Index", "Home");
     }
+
+    // HU-002 / RF-002: inicio de sesión
+    [HttpGet]
+    public IActionResult IniciarSesion(string? returnUrl = null)
+    {
+        if (User.Identity?.IsAuthenticated == true)
+            return RedirigirDespuesDeIniciar(returnUrl);
+
+        return View(new IniciarSesionViewModel { ReturnUrl = returnUrl });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> IniciarSesion(IniciarSesionViewModel modelo)
+    {
+        if (!ModelState.IsValid)
+            return View(modelo);
+
+        var correo = modelo.Correo.Trim();
+
+        // RN-005: lockoutOnFailure cuenta cada intento fallido y bloquea al quinto
+        var resultado = await gestorSesion.PasswordSignInAsync(
+            correo, modelo.Contrasena, modelo.Recordarme, lockoutOnFailure: true);
+
+        if (resultado.Succeeded)
+        {
+            var usuario = await gestorUsuarios.FindByEmailAsync(correo);
+            logger.LogInformation("Inicio de sesión correcto. UsuarioId={UsuarioId}", usuario?.Id);
+            return RedirigirDespuesDeIniciar(modelo.ReturnUrl);
+        }
+
+        if (resultado.IsLockedOut)
+        {
+            var usuario = await gestorUsuarios.FindByEmailAsync(correo);
+            logger.LogWarning("Cuenta bloqueada por intentos fallidos. UsuarioId={UsuarioId}", usuario?.Id);
+            ModelState.AddModelError(string.Empty,
+                $"Su cuenta quedó bloqueada por {OpcionesIdentity.MaximoIntentosFallidos} intentos fallidos. " +
+                $"Intente de nuevo en {OpcionesIdentity.MinutosBloqueo} minutos.");
+            return View(modelo);
+        }
+
+        // Mismo mensaje si el correo no existe o la contraseña está mal:
+        // así no se revela qué correos están registrados.
+        logger.LogInformation("Intento de inicio de sesión fallido.");
+        ModelState.AddModelError(string.Empty, "Correo o contraseña incorrectos.");
+        return View(modelo);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CerrarSesion()
+    {
+        await gestorSesion.SignOutAsync();
+        return RedirectToAction("Index", "Home");
+    }
+
+    [HttpGet]
+    public IActionResult AccesoDenegado() => View();
+
+    // Evita redirecciones abiertas: solo se vuelve a rutas de este mismo sitio
+    private IActionResult RedirigirDespuesDeIniciar(string? returnUrl) =>
+        Url.IsLocalUrl(returnUrl)
+            ? LocalRedirect(returnUrl)
+            : RedirectToAction("Index", "Home");
 
     private void AgregarErrores(IdentityResult resultado)
     {

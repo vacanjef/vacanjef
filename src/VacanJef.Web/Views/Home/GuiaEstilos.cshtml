@@ -1,0 +1,84 @@
+@{
+    ViewData["Title"] = "Guía de estilos";
+    var colores = new (string Nombre, string Clase, string Valor)[]
+    {
+        ("Primario", "vj-muestra-primario", "#0B6E7F"),
+        ("Primario oscuro", "vj-muestra-primario-oscuro", "#08535F"),
+        ("Primario claro", "vj-muestra-primario-claro", "#E6F3F5"),
+        ("Acento", "vj-muestra-acento", "#F2A541"),
+        ("Texto", "vj-muestra-texto", "#1F2933"),
+        ("Fondo", "vj-muestra-fondo", "#F7FAFB"),
+        ("Éxito", "vj-muestra-exito", "#2E7D4F"),
+        ("Advertencia", "vj-muestra-advertencia", "#B7791F"),
+        ("Peligro", "vj-muestra-peligro", "#C0392B"),
+    };
+}
+
+<h1 class="vj-titulo-pagina mb-1">Guía de estilos</h1>
+<p class="vj-texto-suave mb-4">Referencia del sistema de diseño (TT-003). Solo visible en desarrollo.</p>
+
+<section class="mb-5">
+    <h2 class="h4">Colores</h2>
+    <div class="row g-3">
+        @foreach (var color in colores)
+        {
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="vj-muestra @color.Clase mb-2"></div>
+                <div class="fw-semibold">@color.Nombre</div>
+                <code>@color.Valor</code>
+            </div>
+        }
+    </div>
+</section>
+
+<section class="mb-5">
+    <h2 class="h4">Tipografía (Inter)</h2>
+    <div class="vj-tarjeta">
+        <h1>Título 1</h1>
+        <h2>Título 2</h2>
+        <h3>Título 3</h3>
+        <p class="lead">Texto destacado para introducciones.</p>
+        <p>Texto normal del cuerpo. <a href="#">Enlace de ejemplo</a>.</p>
+        <p class="vj-texto-suave small mb-0">Texto secundario y ayudas.</p>
+    </div>
+</section>
+
+<section class="mb-5">
+    <h2 class="h4">Botones</h2>
+    <div class="d-flex flex-wrap gap-2">
+        <button type="button" class="btn btn-primary">Principal</button>
+        <button type="button" class="btn btn-outline-primary">Secundario</button>
+        <button type="button" class="btn btn-success">Confirmar</button>
+        <button type="button" class="btn btn-danger">Eliminar</button>
+        <button type="button" class="btn btn-primary" disabled>Deshabilitado</button>
+    </div>
+</section>
+
+<section class="mb-5">
+    <h2 class="h4">Formulario</h2>
+    <div class="vj-tarjeta">
+        <div class="mb-3">
+            <label class="form-label" for="ejemploNombre">Nombre de la mascota</label>
+            <input class="form-control" id="ejemploNombre" placeholder="Ej.: Lucas" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="ejemploTamano">Tamaño</label>
+            <select class="form-select" id="ejemploTamano">
+                <option>Pequeño</option>
+                <option>Mediano</option>
+                <option>Grande</option>
+            </select>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="ejemploVacunas" checked />
+            <label class="form-check-label" for="ejemploVacunas">Vacunas al día</label>
+        </div>
+    </div>
+</section>
+
+<section class="mb-5">
+    <h2 class="h4">Mensajes</h2>
+    <div class="alert alert-success" role="alert">La reserva quedó confirmada.</div>
+    <div class="alert alert-warning" role="alert">Quedan pocos cupos para esas fechas.</div>
+    <div class="alert alert-danger mb-0" role="alert">No se pudo guardar el registro.</div>
+</section>
