@@ -26,6 +26,12 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+                        @if (User.IsInRole(VacanJef.Core.Constantes.Roles.Dueno))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Mascotas" asp-action="Index">Mis mascotas</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>

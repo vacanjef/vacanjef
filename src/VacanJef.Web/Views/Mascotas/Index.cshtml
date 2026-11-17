@@ -1,0 +1,56 @@
+@model IEnumerable<VacanJef.Web.Models.Mascotas.MascotaResumenViewModel>
+@{
+    ViewData["Title"] = "Mis mascotas";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Mis mascotas</h1>
+    <a asp-action="Registrar" class="btn btn-primary">Registrar mascota</a>
+</div>
+
+@if (TempData["Mensaje"] is string mensaje)
+{
+    <div class="alert alert-success" role="status">@mensaje</div>
+}
+
+@if (!Model.Any())
+{
+    <div class="text-center text-muted py-5 border rounded">
+        <p class="mb-3">Todavía no ha registrado mascotas.</p>
+        <a asp-action="Registrar" class="btn btn-outline-primary">Registrar la primera</a>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Raza</th>
+                    <th>Edad</th>
+                    <th>Peso</th>
+                    <th>Sexo</th>
+                    <th>Salud</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var m in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">@m.Nombre</td>
+                        <td>@m.Raza</td>
+                        <td>@m.Edad @(m.Edad == 1 ? "año" : "años")</td>
+                        <td>@m.PesoKg.ToString("0.##") kg</td>
+                        <td>@m.Sexo</td>
+                        <td>
+                            <span class="badge text-bg-success">@m.Vacunas vacunas</span>
+                            <span class="badge text-bg-warning">@m.Alergias alergias</span>
+                            <span class="badge text-bg-info">@m.Medicamentos medicamentos</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

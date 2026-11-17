@@ -1,0 +1,117 @@
+@using System.Globalization
+@using VacanJef.Core.Enums
+@model VacanJef.Web.Models.Mascotas.RegistroMascotaViewModel
+@{
+    ViewData["Title"] = "Registrar mascota";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <h1 class="h3 mb-2">Registrar mascota</h1>
+        <p class="text-muted mb-4">La información de salud les permite a los cuidadores atender bien a su mascota.</p>
+
+        <form asp-action="Registrar" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="Nombre" class="form-label"></label>
+                    <input asp-for="Nombre" class="form-control" />
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Raza" class="form-label"></label>
+                    <input asp-for="Raza" class="form-control" placeholder="Ej. Criollo, Labrador" />
+                    <span asp-validation-for="Raza" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Edad" class="form-label"></label>
+                    <input asp-for="Edad" class="form-control" type="number" min="0" max="30" />
+                    <span asp-validation-for="Edad" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Peso" class="form-label"></label>
+                    <input asp-for="Peso" class="form-control" inputmode="decimal" placeholder="Ej. 12.5" />
+                    <span asp-validation-for="Peso" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Sexo" class="form-label"></label>
+                    <select asp-for="Sexo" class="form-select" asp-items="Html.GetEnumSelectList<SexoMascota>()">
+                        <option value="">Seleccione...</option>
+                    </select>
+                    <span asp-validation-for="Sexo" class="text-danger"></span>
+                </div>
+            </div>
+
+            <h2 class="h5 mt-4 mb-1">Información de salud</h2>
+            <p class="text-muted small mb-2">Registre al menos una vacuna con su fecha de aplicación. Las alergias y los medicamentos son opcionales.</p>
+            <span asp-validation-for="RegistrosSalud" class="text-danger d-block mb-2"></span>
+
+            <div id="registros-salud">
+                @for (var i = 0; i < Model.RegistrosSalud.Count; i++)
+                {
+                    var fila = Model.RegistrosSalud[i];
+                    <div class="registro-salud row g-2 align-items-start mb-2">
+                        <div class="col-md-3">
+                            <select class="form-select" data-campo="Tipo" name="RegistrosSalud[@i].Tipo" aria-label="Tipo de registro">
+                                @foreach (var tipo in Enum.GetValues<TipoRegistroSalud>())
+                                {
+                                    <option value="@tipo" selected="@(tipo == fila.Tipo)">@tipo</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <input class="form-control" data-campo="Descripcion" name="RegistrosSalud[@i].Descripcion"
+                                   value="@fila.Descripcion" maxlength="255" aria-label="Descripción"
+                                   placeholder="Ej. Rabia, alergia al pollo" />
+                            @Html.ValidationMessage($"RegistrosSalud[{i}].Descripcion", null, new { @class = "text-danger small" })
+                        </div>
+                        <div class="col-md-3">
+                            <input type="date" class="form-control" data-campo="Fecha" name="RegistrosSalud[@i].Fecha"
+                                   value="@fila.Fecha?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)" aria-label="Fecha" />
+                            @Html.ValidationMessage($"RegistrosSalud[{i}].Fecha", null, new { @class = "text-danger small" })
+                        </div>
+                        <div class="col-md-1">
+                            <button type="button" class="btn btn-outline-danger quitar-registro-salud" aria-label="Quitar registro">&times;</button>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <button type="button" id="agregar-registro-salud" class="btn btn-outline-secondary btn-sm">+ Agregar registro</button>
+
+            <template id="plantilla-registro-salud">
+                <div class="registro-salud row g-2 align-items-start mb-2">
+                    <div class="col-md-3">
+                        <select class="form-select" data-campo="Tipo" aria-label="Tipo de registro">
+                            @foreach (var tipo in Enum.GetValues<TipoRegistroSalud>())
+                            {
+                                <option value="@tipo">@tipo</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-5">
+                        <input class="form-control" data-campo="Descripcion" maxlength="255" aria-label="Descripción"
+                               placeholder="Ej. Rabia, alergia al pollo" />
+                    </div>
+                    <div class="col-md-3">
+                        <input type="date" class="form-control" data-campo="Fecha" aria-label="Fecha" />
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-outline-danger quitar-registro-salud" aria-label="Quitar registro">&times;</button>
+                    </div>
+                </div>
+            </template>
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">Guardar mascota</button>
+                <a asp-action="Index" class="btn btn-link">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/mascotas.js" asp-append-version="true"></script>
+}
