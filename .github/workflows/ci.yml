@@ -27,11 +27,9 @@ jobs:
           --results-directory coverage
       - name: Reporte de cobertura
         if: success() || failure()
-        uses: danielpalme/ReportGenerator-GitHub-Action@5
-        with:
-          reports: 'coverage/**/coverage.cobertura.xml'
-          targetdir: 'coverage/reporte'
-          reporttypes: 'HtmlInline;MarkdownSummaryGithub'
+        run: |
+          dotnet tool install --global dotnet-reportgenerator-globaltool
+          reportgenerator -reports:"coverage/**/coverage.cobertura.xml" -targetdir:"coverage/reporte" -reporttypes:"HtmlInline;MarkdownSummaryGithub"
       - name: Resumen de cobertura
         if: success() || failure()
         run: cat coverage/reporte/SummaryGithub.md >> "$GITHUB_STEP_SUMMARY"
