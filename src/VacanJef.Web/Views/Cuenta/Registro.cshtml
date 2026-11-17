@@ -45,6 +45,10 @@
             <div class="form-check mb-4">
                 <input asp-for="AceptaTratamientoDatos" class="form-check-input" />
                 <label asp-for="AceptaTratamientoDatos" class="form-check-label"></label>
+                <div class="form-text">
+                    Lea la <a asp-controller="Home" asp-action="Privacy" target="_blank" rel="noopener">política de tratamiento de datos</a>
+                    (versión @VacanJef.Web.Seguridad.PoliticaDatos.Version).
+                </div>
                 <span asp-validation-for="AceptaTratamientoDatos" class="text-danger d-block"></span>
             </div>
 
