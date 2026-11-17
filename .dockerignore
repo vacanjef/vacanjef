@@ -1,0 +1,15 @@
+**/bin/
+**/obj/
+**/.vs/
+**/.vscode/
+**/*.user
+.git/
+.github/
+coverage/
+TestResults/
+herramientas/
+docs/
+tests/
+.env
+**/appsettings.Development.json
+src/VacanJef.Web/wwwroot/uploads/
