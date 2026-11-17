@@ -1,8 +1,38 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<section class="vj-portada text-center mb-5">
+    <h1 class="display-5 vj-titulo-pagina mb-3">Tu perro en buenas manos, y a la vista</h1>
+    <p class="lead vj-texto-suave mb-4">
+        Reserva su estadía, comparte su historial de salud y míralo en vivo desde cualquier lugar.
+    </p>
+    @if (User.Identity?.IsAuthenticated != true)
+    {
+        <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
+            <a class="btn btn-primary btn-lg" asp-controller="Cuenta" asp-action="Registro">Crear cuenta</a>
+            <a class="btn btn-outline-primary btn-lg" asp-controller="Cuenta" asp-action="IniciarSesion">Iniciar sesión</a>
+        </div>
+    }
+</section>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="vj-tarjeta h-100">
+            <h2 class="h5">Reservas con disponibilidad real</h2>
+            <p class="vj-texto-suave mb-0">Elige las fechas y confirma el cupo al instante.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="vj-tarjeta h-100">
+            <h2 class="h5">Historial de salud</h2>
+            <p class="vj-texto-suave mb-0">Vacunas, alergias y cuidados especiales en un solo lugar.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="vj-tarjeta h-100">
+            <h2 class="h5">Monitoreo privado</h2>
+            <p class="vj-texto-suave mb-0">Solo tú ves la cámara de tu mascota durante su estadía.</p>
+        </div>
+    </div>
 </div>

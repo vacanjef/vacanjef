@@ -4,7 +4,7 @@ using VacanJef.Web.Models;
 
 namespace VacanJef.Web.Controllers;
 
-public class HomeController : Controller
+public class HomeController(IWebHostEnvironment entorno) : Controller
 {
     public IActionResult Index()
     {
@@ -14,6 +14,12 @@ public class HomeController : Controller
     public IActionResult Privacy()
     {
         return View();
+    }
+
+    // TT-003: guía de estilos, solo disponible en desarrollo
+    public IActionResult GuiaEstilos()
+    {
+        return entorno.IsDevelopment() ? View() : NotFound();
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
