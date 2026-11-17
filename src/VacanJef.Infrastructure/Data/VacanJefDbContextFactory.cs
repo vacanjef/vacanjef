@@ -10,7 +10,7 @@ public class VacanJefDbContextFactory : IDesignTimeDbContextFactory<VacanJefDbCo
     public VacanJefDbContext CreateDbContext(string[] args)
     {
         var cadena = Environment.GetEnvironmentVariable("VACANJEF_DB")
-            ?? "Server=localhost;Database=VacanJef;Trusted_Connection=True;TrustServerCertificate=True";
+            ?? "Server=localhost;Database=VacanJefDB;Trusted_Connection=True;TrustServerCertificate=True";
 
         var opciones = new DbContextOptionsBuilder<VacanJefDbContext>()
             .UseSqlServer(cadena)
