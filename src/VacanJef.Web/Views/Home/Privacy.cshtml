@@ -1,6 +1,83 @@
-﻿@{
-    ViewData["Title"] = "Privacy Policy";
+@using VacanJef.Web.Seguridad
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuracion
+@{
+    ViewData["Title"] = "Privacidad";
+    // TT-004: el correo de contacto se configura en appsettings (Privacidad:CorreoContacto)
+    var correoContacto = Configuracion["Privacidad:CorreoContacto"];
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="vj-tarjeta">
+    <h1 class="h3 vj-titulo-pagina">Política de tratamiento de datos personales</h1>
+    <p class="vj-texto-suave">
+        Versión @PoliticaDatos.Version · Vigente desde el @PoliticaDatos.FechaVigencia.
+        Elaborada según la Ley 1581 de 2012 y el Decreto 1074 de 2015.
+    </p>
+
+    <h2 class="h5 mt-4">1. Responsable del tratamiento</h2>
+    <p>
+        VacanJef, plataforma de guardería canina desarrollada como proyecto formativo del programa
+        Análisis y Desarrollo de Software del SENA (ficha 3169901).
+        Correo de contacto:
+        @if (string.IsNullOrWhiteSpace(correoContacto))
+        {
+            <span class="vj-texto-suave">pendiente de publicar.</span>
+        }
+        else
+        {
+            <a href="mailto:@correoContacto">@correoContacto</a>
+        }
+    </p>
+
+    <h2 class="h5 mt-4">2. Datos que tratamos</h2>
+    <ul>
+        <li>Datos de identificación y contacto del dueño o del personal: nombre, correo electrónico y teléfono.</li>
+        <li>Datos de acceso: la contraseña se guarda cifrada con un algoritmo de derivación de claves; nunca en texto plano.</li>
+        <li>Datos de las mascotas: nombre, raza, edad, peso, fotografía, vacunas, alergias, medicamentos y observaciones de su estadía.</li>
+        <li>Video de las áreas de la guardería, que puede mostrar de forma incidental a personas que estén en ellas.</li>
+        <li>Registros técnicos de seguridad: inicios de sesión, accesos a cámaras y cambios de reservas.</li>
+    </ul>
+
+    <h2 class="h5 mt-4">3. Finalidades</h2>
+    <ul>
+        <li>Crear y administrar la cuenta y autenticar a los usuarios.</li>
+        <li>Gestionar reservas, el cuidado de las mascotas y su historial de salud.</li>
+        <li>Permitir que cada dueño vea en tiempo real solo a su propia mascota mientras tenga una reserva activa.</li>
+        <li>Enviar notificaciones sobre reservas, salud y eventos de la estadía.</li>
+        <li>Proteger la plataforma: prevenir accesos no autorizados y llevar registros de auditoría.</li>
+    </ul>
+    <p>Los datos no se venden ni se ceden a terceros para fines comerciales.</p>
+
+    <h2 class="h5 mt-4">4. Derechos del titular</h2>
+    <p>Según el artículo 8 de la Ley 1581 de 2012, usted tiene derecho a:</p>
+    <ul>
+        <li>Conocer, actualizar y rectificar sus datos.</li>
+        <li>Pedir prueba de la autorización que otorgó.</li>
+        <li>Ser informado sobre el uso que se da a sus datos.</li>
+        <li>Revocar la autorización o pedir la supresión de sus datos, cuando no exista un deber legal o contractual de conservarlos.</li>
+        <li>Presentar quejas ante la Superintendencia de Industria y Comercio.</li>
+        <li>Acceder de forma gratuita a sus datos.</li>
+    </ul>
+
+    <h2 class="h5 mt-4">5. Cómo ejercer sus derechos</h2>
+    <p>
+        Con su sesión iniciada, en <strong>Mis datos</strong> puede ver y corregir su información, consultar el registro
+        de su autorización y solicitar la supresión de sus datos. También puede escribir al correo de contacto.
+    </p>
+    <ul>
+        <li>Las consultas se responden en máximo @PoliticaDatos.DiasHabilesConsulta días hábiles.</li>
+        <li>Los reclamos (corrección, actualización o supresión) se responden en máximo @PoliticaDatos.DiasHabilesReclamo días hábiles.</li>
+    </ul>
+
+    <h2 class="h5 mt-4">6. Seguridad</h2>
+    <p>
+        Usamos conexión cifrada (HTTPS), contraseñas protegidas, bloqueo temporal tras intentos fallidos, permisos por rol
+        y registros de auditoría. El acceso al video se concede solo al dueño de la mascota durante su reserva.
+    </p>
+
+    <h2 class="h5 mt-4">7. Autorización y vigencia</h2>
+    <p class="mb-0">
+        Al crear la cuenta, el titular autoriza el tratamiento marcando la casilla correspondiente; la plataforma guarda la
+        fecha y la versión de esta política como prueba. Los datos se conservan mientras la cuenta esté activa y durante el
+        tiempo que exijan las obligaciones legales. Los cambios a esta política se publicarán en esta página con una nueva versión.
+    </p>
+</div>

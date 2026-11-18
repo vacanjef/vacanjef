@@ -1,0 +1,110 @@
+@model VacanJef.Web.Models.DatosPersonales.MisDatosViewModel
+@using VacanJef.Web.Seguridad
+@{
+    ViewData["Title"] = "Mis datos personales";
+}
+
+<h1 class="h3 vj-titulo-pagina mb-2">Mis datos personales</h1>
+<p class="vj-texto-suave mb-4">
+    Aquí puede conocer, actualizar y pedir la supresión de sus datos, según la
+    <a asp-controller="Home" asp-action="Privacy">política de tratamiento de datos</a> (versión @PoliticaDatos.Version).
+</p>
+
+@if (TempData["Mensaje"] is string mensaje)
+{
+    <div class="alert alert-success" role="status">@mensaje</div>
+}
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="vj-tarjeta h-100">
+            <h2 class="h5 mb-3">Datos que tenemos</h2>
+            <dl class="row mb-0">
+                <dt class="col-sm-5">Correo</dt>
+                <dd class="col-sm-7">@Model.Correo</dd>
+                <dt class="col-sm-5">Rol</dt>
+                <dd class="col-sm-7">@string.Join(", ", Model.Roles)</dd>
+                <dt class="col-sm-5">Fecha de registro</dt>
+                <dd class="col-sm-7">@Model.FechaRegistro.ToLocalTime().ToString("dd/MM/yyyy")</dd>
+            </dl>
+            <p class="small vj-texto-suave mt-3 mb-0">
+                El correo es su usuario de acceso. Para cambiarlo, escriba al correo de contacto de la política.
+            </p>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="vj-tarjeta h-100">
+            <h2 class="h5 mb-3">Actualizar o corregir</h2>
+            <form asp-action="Actualizar" method="post" novalidate>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Datos.Nombre" class="form-label"></label>
+                    <input asp-for="Datos.Nombre" class="form-control" autocomplete="name" />
+                    <span asp-validation-for="Datos.Nombre" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Datos.Telefono" class="form-label"></label>
+                    <input asp-for="Datos.Telefono" class="form-control" autocomplete="tel" />
+                    <span asp-validation-for="Datos.Telefono" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Guardar cambios</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="vj-tarjeta">
+            <h2 class="h5 mb-3">Autorizaciones y solicitudes</h2>
+            @if (Model.Historial.Count == 0)
+            {
+                <p class="vj-texto-suave mb-0">No hay registros.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Acción</th>
+                                <th>Versión de la política</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var registro in Model.Historial)
+                            {
+                                <tr>
+                                    <td>@registro.Fecha.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@registro.Descripcion</td>
+                                    <td>@registro.Version</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="vj-tarjeta">
+            <h2 class="h5 mb-2">Supresión de datos y revocatoria de la autorización</h2>
+            <p class="vj-texto-suave">
+                Puede pedir que eliminemos sus datos y revocar la autorización. La solicitud se responde en máximo
+                @PoliticaDatos.DiasHabilesReclamo días hábiles. Algunos registros pueden conservarse cuando exista un
+                deber legal o contractual, por ejemplo, el historial de salud de una estadía.
+            </p>
+            <form asp-action="SolicitarSupresion" method="post">
+                <button type="submit" class="btn btn-outline-danger">Solicitar supresión de mis datos</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
