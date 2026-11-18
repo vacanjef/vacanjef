@@ -27,3 +27,6 @@ Thumbs.db
 
 # Herramientas externas descargadas (MediaMTX, etc.)
 herramientas/bin/
+
+# HU-004: fotos de mascotas guardadas en desarrollo
+src/VacanJef.Web/App_Data/

@@ -4,6 +4,7 @@ using VacanJef.Core.Entities;
 using VacanJef.Infrastructure;
 using VacanJef.Infrastructure.Data;
 using VacanJef.Web.Seguridad;
+using VacanJef.Web.Servicios;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,11 @@ var cadenaConexion = builder.Configuration.GetConnectionString("VacanJef")
     ?? throw new InvalidOperationException("Configure la cadena de conexión en la variable de entorno VACANJEF_DB.");
 
 builder.Services.AddInfrastructure(cadenaConexion);
+
+// HU-004: carpeta de fotos de mascotas (fuera de wwwroot). En Docker se define con Fotos__Ruta.
+var carpetaFotos = builder.Configuration["Fotos:Ruta"]
+    ?? Path.Combine(builder.Environment.ContentRootPath, "App_Data", "fotos-mascotas");
+builder.Services.AddSingleton(new AlmacenFotosMascotas(carpetaFotos));
 
 builder.Services
     .AddIdentity<Usuario, IdentityRole<int>>(OpcionesIdentity.Configurar)
