@@ -56,6 +56,10 @@ public class CuentaController(
             return View(modelo);
         }
 
+        // TT-004: prueba de la autorización de datos (Ley 1581): quién, cuándo y qué versión de la política
+        contexto.Auditorias.Add(PoliticaDatos.Registrar(usuario.Id, PoliticaDatos.AccionAutorizacion));
+        await contexto.SaveChangesAsync();
+
         await transaccion.CommitAsync();
 
         // En el log solo va el Id: nunca correos ni contraseñas

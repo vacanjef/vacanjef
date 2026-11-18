@@ -6,6 +6,9 @@
             <span class="navbar-text">@User.Identity.Name</span>
         </li>
         <li class="nav-item">
+            <a class="nav-link" asp-controller="DatosPersonales" asp-action="Index">Mis datos</a>
+        </li>
+        <li class="nav-item">
             <form asp-controller="Cuenta" asp-action="CerrarSesion" method="post" class="d-inline">
                 <button type="submit" class="btn btn-outline-light btn-sm">Cerrar sesión</button>
             </form>
