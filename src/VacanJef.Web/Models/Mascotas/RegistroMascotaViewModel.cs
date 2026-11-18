@@ -1,11 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using Microsoft.AspNetCore.Http;
 using VacanJef.Core.Entities;
 using VacanJef.Core.Enums;
 
 namespace VacanJef.Web.Models.Mascotas;
 
 // HU-003: registro de mascota con información de salud (RN-002).
+// HU-004: foto opcional (RN-008), validada en el controlador.
 // No tiene DuenoId a propósito: el dueño siempre es el usuario de la sesión.
 public class RegistroMascotaViewModel : IValidatableObject
 {
@@ -36,6 +38,9 @@ public class RegistroMascotaViewModel : IValidatableObject
     [Required(ErrorMessage = "Seleccione el sexo.")]
     [Display(Name = "Sexo")]
     public SexoMascota? Sexo { get; set; }
+
+    [Display(Name = "Foto (opcional)")]
+    public IFormFile? Foto { get; set; }
 
     public List<RegistroSaludItemViewModel> RegistrosSalud { get; set; } = new();
 

@@ -39,6 +39,9 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS web
 WORKDIR /app
 COPY --from=compilacion /app/web .
 ENV ASPNETCORE_HTTP_PORTS=8080
+# HU-004: carpeta de fotos de mascotas, con permisos para el usuario sin privilegios
+ENV Fotos__Ruta=/datos/fotos-mascotas
+RUN mkdir -p /datos/fotos-mascotas && chown $APP_UID /datos/fotos-mascotas
 EXPOSE 8080
 USER $APP_UID
 ENTRYPOINT ["dotnet", "VacanJef.Web.dll"]
