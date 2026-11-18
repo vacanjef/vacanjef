@@ -41,9 +41,13 @@ services:
       VACANJEF_DB: "Server=sql;Database=VacanJefDB;User Id=sa;Password=${VACANJEF_SA_PASSWORD};TrustServerCertificate=True"
     ports:
       - "8080:8080"
+    volumes:
+      # HU-004: las fotos de mascotas sobreviven a la recreación del contenedor
+      - fotos-mascotas:/datos/fotos-mascotas
     depends_on:
       migraciones:
         condition: service_completed_successfully
 
 volumes:
   datos-sql:
+  fotos-mascotas:
