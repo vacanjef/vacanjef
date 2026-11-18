@@ -12,4 +12,5 @@ public record MascotaResumenViewModel(
     SexoMascota Sexo,
     int Vacunas,
     int Alergias,
-    int Medicamentos);
+    int Medicamentos,
+    bool TieneFoto);

@@ -198,7 +198,7 @@ public class RegistroMascotaTests
             ], "Prueba")),
         };
 
-        return new MascotasController(contexto, NullLogger<MascotasController>.Instance)
+        return new MascotasController(contexto, new VacanJef.Web.Servicios.AlmacenFotosMascotas(Path.Combine(Path.GetTempPath(), "vacanjef-pruebas", Guid.NewGuid().ToString("N"))), NullLogger<MascotasController>.Instance)
         {
             ControllerContext = new ControllerContext { HttpContext = http },
             TempData = new TempDataDictionary(http, new TempDataSinPersistencia()),

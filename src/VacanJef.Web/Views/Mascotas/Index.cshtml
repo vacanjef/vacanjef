@@ -26,18 +26,31 @@ else
         <table class="table align-middle">
             <thead>
                 <tr>
+                    <th><span class="visually-hidden">Foto</span></th>
                     <th>Nombre</th>
                     <th>Raza</th>
                     <th>Edad</th>
                     <th>Peso</th>
                     <th>Sexo</th>
                     <th>Salud</th>
+                    <th><span class="visually-hidden">Acciones</span></th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var m in Model)
                 {
                     <tr>
+                        <td>
+                            @if (m.TieneFoto)
+                            {
+                                <img src="@Url.Action("Foto", new { id = m.Id })" alt="Foto de @m.Nombre"
+                                     width="56" height="56" class="rounded-circle object-fit-cover border" />
+                            }
+                            else
+                            {
+                                <span class="small text-muted">Sin foto</span>
+                            }
+                        </td>
                         <td class="fw-semibold">@m.Nombre</td>
                         <td>@m.Raza</td>
                         <td>@m.Edad @(m.Edad == 1 ? "año" : "años")</td>
@@ -47,6 +60,11 @@ else
                             <span class="badge text-bg-success">@m.Vacunas vacunas</span>
                             <span class="badge text-bg-warning">@m.Alergias alergias</span>
                             <span class="badge text-bg-info">@m.Medicamentos medicamentos</span>
+                        </td>
+                        <td class="text-end">
+                            <a asp-action="CambiarFoto" asp-route-id="@m.Id" class="btn btn-sm btn-outline-secondary">
+                                @(m.TieneFoto ? "Cambiar foto" : "Agregar foto")
+                            </a>
                         </td>
                     </tr>
                 }
