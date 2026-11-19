@@ -86,26 +86,39 @@ public class CuentaController(
             return View(modelo);
 
         var correo = modelo.Correo.Trim();
+        var usuario = await gestorUsuarios.FindByEmailAsync(correo);
 
-        // RN-005: lockoutOnFailure cuenta cada intento fallido y bloquea al quinto
-        var resultado = await gestorSesion.PasswordSignInAsync(
-            correo, modelo.Contrasena, modelo.Recordarme, lockoutOnFailure: true);
-
-        if (resultado.Succeeded)
+        if (usuario is not null)
         {
-            var usuario = await gestorUsuarios.FindByEmailAsync(correo);
-            logger.LogInformation("Inicio de sesión correcto. UsuarioId={UsuarioId}", usuario?.Id);
-            return RedirigirDespuesDeIniciar(modelo.ReturnUrl);
-        }
+            // RN-005: lockoutOnFailure cuenta cada intento fallido y bloquea al quinto
+            var resultado = await gestorSesion.CheckPasswordSignInAsync(
+                usuario, modelo.Contrasena, lockoutOnFailure: true);
 
-        if (resultado.IsLockedOut)
-        {
-            var usuario = await gestorUsuarios.FindByEmailAsync(correo);
-            logger.LogWarning("Cuenta bloqueada por intentos fallidos. UsuarioId={UsuarioId}", usuario?.Id);
-            ModelState.AddModelError(string.Empty,
-                $"Su cuenta quedó bloqueada por {OpcionesIdentity.MaximoIntentosFallidos} intentos fallidos. " +
-                $"Intente de nuevo en {OpcionesIdentity.MinutosBloqueo} minutos.");
-            return View(modelo);
+            if (resultado.Succeeded)
+            {
+                // HU-015: una cuenta desactivada por el administrador no entra.
+                // Se avisa solo después de validar la contraseña, para no revelar qué cuentas existen.
+                if (!usuario.Activo)
+                {
+                    logger.LogWarning("Intento de inicio de sesión de una cuenta desactivada. UsuarioId={UsuarioId}", usuario.Id);
+                    ModelState.AddModelError(string.Empty,
+                        "Su cuenta está desactivada. Comuníquese con el administrador de la guardería.");
+                    return View(modelo);
+                }
+
+                await gestorSesion.SignInAsync(usuario, modelo.Recordarme);
+                logger.LogInformation("Inicio de sesión correcto. UsuarioId={UsuarioId}", usuario.Id);
+                return RedirigirDespuesDeIniciar(modelo.ReturnUrl);
+            }
+
+            if (resultado.IsLockedOut)
+            {
+                logger.LogWarning("Cuenta bloqueada por intentos fallidos. UsuarioId={UsuarioId}", usuario.Id);
+                ModelState.AddModelError(string.Empty,
+                    $"Su cuenta quedó bloqueada por {OpcionesIdentity.MaximoIntentosFallidos} intentos fallidos. " +
+                    $"Intente de nuevo en {OpcionesIdentity.MinutosBloqueo} minutos.");
+                return View(modelo);
+            }
         }
 
         // Mismo mensaje si el correo no existe o la contraseña está mal:

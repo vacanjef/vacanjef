@@ -39,6 +39,9 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       VACANJEF_DB: "Server=sql;Database=VacanJefDB;User Id=sa;Password=${VACANJEF_SA_PASSWORD};TrustServerCertificate=True"
+      # HU-015: primer administrador (opcional, solo se crea si no hay ninguno)
+      VACANJEF_ADMIN_CORREO: ${VACANJEF_ADMIN_CORREO:-}
+      VACANJEF_ADMIN_CONTRASENA: ${VACANJEF_ADMIN_CONTRASENA:-}
     ports:
       - "8080:8080"
     volumes:
