@@ -1,0 +1,43 @@
+name: Incidente
+description: Falla en un ambiente en uso (INC-##, Manual Técnico)
+title: "INC: "
+labels: ["incidente"]
+body:
+  - type: input
+    id: id
+    attributes:
+      label: ID del incidente
+      placeholder: INC-04
+  - type: dropdown
+    id: ambiente
+    attributes:
+      label: Ambiente
+      options:
+        - Desarrollo
+        - Pruebas
+        - Producción / piloto
+    validations:
+      required: true
+  - type: input
+    id: inicio
+    attributes:
+      label: Fecha y hora de inicio
+      placeholder: 17/11/2026 18:00
+    validations:
+      required: true
+  - type: textarea
+    id: impacto
+    attributes:
+      label: Impacto
+      description: Qué funciones y usuarios se ven afectados.
+    validations:
+      required: true
+  - type: textarea
+    id: acciones
+    attributes:
+      label: Acciones tomadas
+  - type: textarea
+    id: causa
+    attributes:
+      label: Causa raíz y prevención
+      description: Se completa al cerrar el incidente.

@@ -1,0 +1,43 @@
+name: Solicitud de cambio
+description: Cambio al alcance, requisitos o decisiones aprobadas (CR-### / CHG-##)
+title: "CR: "
+labels: ["solicitud-cambio"]
+body:
+  - type: input
+    id: id
+    attributes:
+      label: ID de la solicitud
+      placeholder: CR-002
+  - type: input
+    id: solicitante
+    attributes:
+      label: Quién lo solicita
+    validations:
+      required: true
+  - type: textarea
+    id: cambio
+    attributes:
+      label: Cambio propuesto
+    validations:
+      required: true
+  - type: textarea
+    id: justificacion
+    attributes:
+      label: Justificación
+    validations:
+      required: true
+  - type: textarea
+    id: impacto
+    attributes:
+      label: Impacto
+      description: Documentos, historias, pruebas, tiempo y riesgos afectados.
+    validations:
+      required: true
+  - type: dropdown
+    id: decision
+    attributes:
+      label: Decisión
+      options:
+        - Pendiente
+        - Aprobada
+        - Rechazada
