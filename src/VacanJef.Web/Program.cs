@@ -26,6 +26,12 @@ builder.Services
     .AddErrorDescriber<ErroresIdentityEnEspanol>()
     .AddDefaultTokenProviders();
 
+// HU-015: si el administrador desactiva una cuenta o cambia su rol, sus sesiones se cierran en máximo 1 minuto
+builder.Services.Configure<SecurityStampValidatorOptions>(opciones =>
+    opciones.ValidationInterval = TimeSpan.FromMinutes(1));
+
+builder.Services.AddScoped<GestionUsuarios>();
+
 builder.Services.ConfigureApplicationCookie(opciones =>
 {
     opciones.LoginPath = "/Cuenta/IniciarSesion";
@@ -45,6 +51,7 @@ builder.Services.AddControllersWithViews(opciones =>
 var app = builder.Build();
 
 await SemillaRoles.CrearAsync(app.Services);
+await SemillaAdministrador.CrearAsync(app.Services, app.Configuration);
 
 if (!app.Environment.IsDevelopment())
 {
