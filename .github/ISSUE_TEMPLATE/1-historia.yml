@@ -1,0 +1,55 @@
+name: Historia de usuario
+description: Funcionalidad del Backlog (HU-001 a HU-014)
+title: "HU-0XX "
+labels: ["historia"]
+body:
+  - type: markdown
+    attributes:
+      value: Use el ID y el título tal como aparecen en el Backlog.
+  - type: input
+    id: id
+    attributes:
+      label: ID de la historia
+      placeholder: HU-005
+    validations:
+      required: true
+  - type: textarea
+    id: historia
+    attributes:
+      label: Historia
+      placeholder: Como <rol>, quiero <acción> para <beneficio>.
+    validations:
+      required: true
+  - type: input
+    id: requisitos
+    attributes:
+      label: Requisitos y reglas relacionados
+      placeholder: RF-005, RN-001, RN-003
+    validations:
+      required: true
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Criterios de aceptación
+      description: Una casilla por criterio. Incluya casos de éxito, error, límite y permiso.
+      value: |
+        - [ ] 
+        - [ ] 
+        - [ ] 
+    validations:
+      required: true
+  - type: input
+    id: dependencias
+    attributes:
+      label: Dependencias
+      placeholder: HU-003, TT-002
+  - type: dropdown
+    id: prioridad
+    attributes:
+      label: Prioridad
+      options:
+        - Must
+        - Should
+        - Could
+    validations:
+      required: true
