@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -78,7 +79,13 @@ builder.Services.AddControllersWithViews(opciones =>
     opciones.Filters.Add<FiltroCambioContrasena>();
 });
 
+// TT-003 (Azure): esquema e IP originales detrás del proxy de App Service
+builder.Services.Configure<ForwardedHeadersOptions>(OpcionesProxy.Configurar);
+
 var app = builder.Build();
+
+// Debe ir primero, antes de HSTS, HttpsRedirection y los registros
+app.UseForwardedHeaders();
 
 await SemillaRoles.CrearAsync(app.Services);
 await SemillaAdministrador.CrearAsync(app.Services, app.Configuration);
