@@ -42,6 +42,9 @@ var carpetaFotos = builder.Configuration["Fotos:Ruta"]
     ?? Path.Combine(builder.Environment.ContentRootPath, "App_Data", "fotos-mascotas");
 builder.Services.AddSingleton(new AlmacenFotosMascotas(carpetaFotos));
 
+// HU-017: consulta de la auditoría y atención de solicitudes de supresión
+builder.Services.AddScoped<ConsultaAuditoria>();
+
 builder.Services
     .AddIdentity<Usuario, IdentityRole<int>>(OpcionesIdentity.Configurar)
     .AddEntityFrameworkStores<VacanJefDbContext>()
