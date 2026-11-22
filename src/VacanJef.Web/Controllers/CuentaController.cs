@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using VacanJef.Core.Constantes;
 using VacanJef.Core.Entities;
 using VacanJef.Infrastructure.Data;
@@ -30,40 +31,51 @@ public class CuentaController(
             return View(modelo);
 
         var correo = modelo.Correo.Trim();
-        var usuario = new Usuario
-        {
-            UserName = correo,
-            Email = correo,
-            Nombre = modelo.Nombre.Trim(),
-            PhoneNumber = modelo.Telefono.Trim(),
-        };
+        Usuario? usuario = null;
 
-        // Usuario y rol se guardan juntos: si algo falla, no queda nada a medias
-        await using var transaccion = await contexto.Database.BeginTransactionAsync();
-
-        var creacion = await gestorUsuarios.CreateAsync(usuario, modelo.Contrasena);
-        if (!creacion.Succeeded)
+        // Con EnableRetryOnFailure (Azure SQL), EF solo acepta transacciones dentro de la
+        // estrategia de ejecución: si hay un fallo transitorio, se repite todo el bloque desde cero.
+        var estrategia = contexto.Database.CreateExecutionStrategy();
+        var resultado = await estrategia.ExecuteAsync(async () =>
         {
-            AgregarErrores(creacion);
+            contexto.ChangeTracker.Clear(); // un reintento no arrastra cambios del intento anterior
+
+            usuario = new Usuario
+            {
+                UserName = correo,
+                Email = correo,
+                Nombre = modelo.Nombre.Trim(),
+                PhoneNumber = modelo.Telefono.Trim(),
+            };
+
+            // Usuario, rol y autorización de datos se guardan juntos: si algo falla, no queda nada a medias
+            await using var transaccion = await contexto.Database.BeginTransactionAsync();
+
+            var creacion = await gestorUsuarios.CreateAsync(usuario, modelo.Contrasena);
+            if (!creacion.Succeeded)
+                return creacion;
+
+            // RF-001: el registro público siempre asigna el rol Dueño
+            var asignacion = await gestorUsuarios.AddToRoleAsync(usuario, Roles.Dueno);
+            if (!asignacion.Succeeded)
+                return asignacion;
+
+            // TT-004: prueba de la autorización de datos (Ley 1581): quién, cuándo y qué versión de la política
+            contexto.Auditorias.Add(PoliticaDatos.Registrar(usuario.Id, PoliticaDatos.AccionAutorizacion));
+            await contexto.SaveChangesAsync();
+
+            await transaccion.CommitAsync();
+            return IdentityResult.Success;
+        });
+
+        if (!resultado.Succeeded)
+        {
+            AgregarErrores(resultado);
             return View(modelo);
         }
-
-        // RF-001: el registro público siempre asigna el rol Dueño
-        var asignacion = await gestorUsuarios.AddToRoleAsync(usuario, Roles.Dueno);
-        if (!asignacion.Succeeded)
-        {
-            AgregarErrores(asignacion);
-            return View(modelo);
-        }
-
-        // TT-004: prueba de la autorización de datos (Ley 1581): quién, cuándo y qué versión de la política
-        contexto.Auditorias.Add(PoliticaDatos.Registrar(usuario.Id, PoliticaDatos.AccionAutorizacion));
-        await contexto.SaveChangesAsync();
-
-        await transaccion.CommitAsync();
 
         // En el log solo va el Id: nunca correos ni contraseñas
-        logger.LogInformation("Nuevo dueño registrado. UsuarioId={UsuarioId}", usuario.Id);
+        logger.LogInformation("Nuevo dueño registrado. UsuarioId={UsuarioId}", usuario!.Id);
 
         await gestorSesion.SignInAsync(usuario, isPersistent: false);
         return RedirectToAction("Index", "Home");
