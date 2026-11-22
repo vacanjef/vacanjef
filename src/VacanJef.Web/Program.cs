@@ -53,6 +53,7 @@ builder.Services.Configure<SecurityStampValidatorOptions>(opciones =>
     opciones.ValidationInterval = TimeSpan.FromMinutes(1));
 
 builder.Services.AddScoped<GestionUsuarios>();
+builder.Services.AddScoped<ServicioContrasenas>();
 
 builder.Services.ConfigureApplicationCookie(opciones =>
 {
@@ -67,8 +68,12 @@ builder.Services.ConfigureApplicationCookie(opciones =>
 });
 
 // Protección CSRF en todos los formularios POST
+// HU-016: quien tiene una contraseña asignada por el administrador debe cambiarla antes de seguir
 builder.Services.AddControllersWithViews(opciones =>
-    opciones.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
+{
+    opciones.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+    opciones.Filters.Add<FiltroCambioContrasena>();
+});
 
 var app = builder.Build();
 

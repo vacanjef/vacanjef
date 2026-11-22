@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using VacanJef.Core.Constantes;
 using VacanJef.Core.Entities;
 using VacanJef.Infrastructure.Data;
+using VacanJef.Web.Seguridad;
 
 namespace VacanJef.Web.Servicios;
 
@@ -94,6 +95,9 @@ public class GestionUsuarios(UserManager<Usuario> gestorUsuarios, VacanJefDbCont
             await gestorUsuarios.DeleteAsync(usuario);
             return ResultadoGestion.Error(DescribirErrores(asignacion));
         }
+
+        // HU-016: la contraseña inicial la conoce el administrador, así que debe cambiarla al entrar
+        await gestorUsuarios.AddClaimAsync(usuario, ContrasenaObligatoria.CrearMarca());
 
         await AuditarAsync(administradorId, AccionCrear, usuario.Id);
         return ResultadoGestion.Ok($"Se creó la cuenta de {usuario.Nombre} con el rol {NombreRol(rol)}.");

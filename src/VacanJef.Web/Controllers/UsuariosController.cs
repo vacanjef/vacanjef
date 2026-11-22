@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using VacanJef.Core.Constantes;
 using VacanJef.Core.Entities;
+using VacanJef.Web.Models.Contrasena;
 using VacanJef.Web.Models.Usuarios;
 using VacanJef.Web.Servicios;
 
@@ -12,6 +13,7 @@ namespace VacanJef.Web.Controllers;
 [Authorize(Roles = Roles.Administrador)]
 public class UsuariosController(
     GestionUsuarios gestion,
+    ServicioContrasenas contrasenas,
     UserManager<Usuario> gestorUsuarios,
     ILogger<UsuariosController> logger) : Controller
 {
@@ -81,6 +83,45 @@ public class UsuariosController(
             return Challenge();
 
         return Informar(await gestion.DesbloquearAsync(id, administradorId));
+    }
+
+    // HU-016: el administrador asigna una contraseña temporal (por ejemplo, si la persona la olvidó)
+    [HttpGet]
+    public async Task<IActionResult> RestablecerContrasena(int id)
+    {
+        if (ObtenerAdministradorId() is not int administradorId)
+            return Challenge();
+
+        if (id == administradorId)
+            return Informar(ResultadoGestion.Error("Para cambiar su propia contraseña use la opción Cambiar contraseña de Mis datos."));
+
+        var usuario = await gestorUsuarios.FindByIdAsync(id.ToString());
+        if (usuario is null)
+            return NotFound();
+
+        return View(new RestablecerContrasenaViewModel { Id = usuario.Id, Nombre = usuario.Nombre });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> RestablecerContrasena(int id, RestablecerContrasenaViewModel modelo)
+    {
+        if (ObtenerAdministradorId() is not int administradorId)
+            return Challenge();
+
+        modelo.Id = id;
+        if (!ModelState.IsValid)
+            return View(modelo);
+
+        var resultado = await contrasenas.RestablecerAsync(id, modelo.NuevaContrasena, administradorId);
+        if (!resultado.Exito)
+        {
+            ModelState.AddModelError(string.Empty, resultado.Mensaje);
+            return View(modelo);
+        }
+
+        logger.LogInformation("Contraseña restablecida por el administrador. AdministradorId={AdministradorId} UsuarioId={UsuarioId}",
+            administradorId, id);
+        return Informar(resultado);
     }
 
     private IActionResult Informar(ResultadoGestion resultado)

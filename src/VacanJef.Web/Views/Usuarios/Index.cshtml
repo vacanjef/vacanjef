@@ -128,6 +128,8 @@ else
                                 }
                                 @if (!esUsted)
                                 {
+                                    <a asp-action="RestablecerContrasena" asp-route-id="@usuario.Id"
+                                       class="btn btn-sm btn-outline-secondary">Restablecer contraseña</a>
                                     <form asp-action="CambiarEstado" asp-route-id="@usuario.Id" method="post">
                                         <input type="hidden" name="activo" value="@(usuario.Activo ? "false" : "true")" />
                                         @if (usuario.Activo)
