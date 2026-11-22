@@ -47,6 +47,8 @@ services:
     volumes:
       # HU-004: las fotos de mascotas sobreviven a la recreación del contenedor
       - fotos-mascotas:/datos/fotos-mascotas
+      # TT-008: los registros también sobreviven a la recreación del contenedor
+      - registros:/datos/registros
     depends_on:
       migraciones:
         condition: service_completed_successfully
@@ -54,3 +56,4 @@ services:
 volumes:
   datos-sql:
   fotos-mascotas:
+  registros:

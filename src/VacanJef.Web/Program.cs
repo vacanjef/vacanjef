@@ -1,12 +1,30 @@
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
+using Serilog.Events;
 using VacanJef.Core.Entities;
 using VacanJef.Infrastructure;
 using VacanJef.Infrastructure.Data;
+using VacanJef.Web.Salud;
 using VacanJef.Web.Seguridad;
 using VacanJef.Web.Servicios;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// TT-008: registros con Serilog en consola y en un archivo por día (se guardan 14 días).
+// Niveles en appsettings.json (sección Serilog). En Docker la carpeta se define con Registros__Ruta.
+var carpetaRegistros = builder.Configuration["Registros:Ruta"]
+    ?? Path.Combine(builder.Environment.ContentRootPath, "Logs");
+builder.Services.AddSerilog((servicios, configuracion) => configuracion
+    .ReadFrom.Configuration(builder.Configuration)
+    .ReadFrom.Services(servicios)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File(
+        Path.Combine(carpetaRegistros, "vacanjef-.log"),
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 14));
 
 // Cadena de conexión: nunca en el código. Se toma de la variable de entorno VACANJEF_DB.
 var cadenaConexion = builder.Configuration.GetConnectionString("VacanJef")
@@ -14,6 +32,10 @@ var cadenaConexion = builder.Configuration.GetConnectionString("VacanJef")
     ?? throw new InvalidOperationException("Configure la cadena de conexión en la variable de entorno VACANJEF_DB.");
 
 builder.Services.AddInfrastructure(cadenaConexion);
+
+// TT-008: health check en /salud (la aplicación responde y la base de datos acepta conexiones)
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<VacanJefDbContext>(RespuestaSalud.ChequeoBaseDeDatos);
 
 // HU-004: carpeta de fotos de mascotas (fuera de wwwroot). En Docker se define con Fotos__Ruta.
 var carpetaFotos = builder.Configuration["Fotos:Ruta"]
@@ -61,10 +83,24 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseMiddleware<CabecerasSeguridadMiddleware>();
+
+// TT-008: una línea por petición (método, ruta, código y tiempo). Nunca registra el contenido
+// de los formularios. Las consultas a /salud se omiten para no llenar los registros.
+app.UseSerilogRequestLogging(opciones =>
+    opciones.GetLevel = (contexto, _, error) =>
+        error is not null || contexto.Response.StatusCode >= 500 ? LogEventLevel.Error
+        : contexto.Request.Path.StartsWithSegments(RespuestaSalud.Ruta) ? LogEventLevel.Verbose
+        : LogEventLevel.Information);
+
 app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapHealthChecks(RespuestaSalud.Ruta, new HealthCheckOptions
+{
+    ResponseWriter = RespuestaSalud.EscribirAsync,
+});
 
 app.MapStaticAssets();
 app.MapControllerRoute(
