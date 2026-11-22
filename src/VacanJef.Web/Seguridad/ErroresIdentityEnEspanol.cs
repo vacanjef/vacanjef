@@ -26,6 +26,9 @@ public class ErroresIdentityEnEspanol : IdentityErrorDescriber
     public override IdentityError PasswordRequiresLower() =>
         new() { Code = nameof(PasswordRequiresLower), Description = "La contraseña debe tener al menos una letra minúscula." };
 
+    public override IdentityError PasswordMismatch() =>
+        new() { Code = nameof(PasswordMismatch), Description = "La contraseña actual no es correcta." };
+
     public override IdentityError PasswordRequiresNonAlphanumeric() =>
         new() { Code = nameof(PasswordRequiresNonAlphanumeric), Description = "La contraseña debe tener al menos un símbolo (por ejemplo ! # $ %)." };
 }

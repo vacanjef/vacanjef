@@ -1,0 +1,57 @@
+@model VacanJef.Web.Models.Contrasena.CambiarContrasenaViewModel
+@{
+    ViewData["Title"] = "Cambiar contraseña";
+    var obligatorio = ViewData["Obligatorio"] is true;
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-5">
+        <h1 class="h3 vj-titulo-pagina mb-2">Cambiar contraseña</h1>
+
+        @if (obligatorio)
+        {
+            <div class="alert alert-warning" role="alert">
+                Por seguridad, cambie la contraseña que le asignó el administrador antes de continuar.
+            </div>
+        }
+        else
+        {
+            <p class="vj-texto-suave mb-4">Al cambiarla, se cerrarán sus sesiones abiertas en otros equipos.</p>
+        }
+
+        <form asp-action="Cambiar" method="post" novalidate class="vj-tarjeta">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+
+            <div class="mb-3">
+                <label asp-for="ContrasenaActual" class="form-label"></label>
+                <input asp-for="ContrasenaActual" class="form-control" autocomplete="current-password" autofocus />
+                <span asp-validation-for="ContrasenaActual" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="NuevaContrasena" class="form-label"></label>
+                <input asp-for="NuevaContrasena" class="form-control" autocomplete="new-password" />
+                <div class="form-text">Mínimo 8 caracteres, con mayúscula, minúscula, número y símbolo.</div>
+                <span asp-validation-for="NuevaContrasena" class="text-danger"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="ConfirmarContrasena" class="form-label"></label>
+                <input asp-for="ConfirmarContrasena" class="form-control" autocomplete="new-password" />
+                <span asp-validation-for="ConfirmarContrasena" class="text-danger"></span>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Cambiar contraseña</button>
+                @if (!obligatorio)
+                {
+                    <a asp-controller="DatosPersonales" asp-action="Index" class="btn btn-link">Cancelar</a>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
