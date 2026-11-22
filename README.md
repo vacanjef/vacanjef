@@ -2,7 +2,7 @@
 
 Plataforma web para gestionar una guardería canina: dueños y mascotas, historial de salud, reservas con disponibilidad real, observaciones del cuidador, notificaciones y monitoreo privado por cámara.
 
-Proyecto de grado — SENA, ADSO, ficha 3169901. Instructor: Juan Pablo Saldarriaga.
+Proyecto de grado — SENA, ADSO, ficha 3169901. Instructor: Mateo Arroyave.
 
 ## Equipo
 
