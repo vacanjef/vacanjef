@@ -3,7 +3,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <Company>VacanJef - SENA ADSO ficha 3169901</Company>
     <Authors>Juan Camilo Sarrazola Agudelo; Jeferson Estiven Vargas García; Laura Vanessa Henao López; Carlos Alfredo Santiz</Authors>
   </PropertyGroup>

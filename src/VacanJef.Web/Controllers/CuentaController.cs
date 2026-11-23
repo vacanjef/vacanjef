@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using VacanJef.Core.Constantes;
 using VacanJef.Core.Entities;
 using VacanJef.Infrastructure.Data;
@@ -30,40 +31,51 @@ public class CuentaController(
             return View(modelo);
 
         var correo = modelo.Correo.Trim();
-        var usuario = new Usuario
-        {
-            UserName = correo,
-            Email = correo,
-            Nombre = modelo.Nombre.Trim(),
-            PhoneNumber = modelo.Telefono.Trim(),
-        };
+        Usuario? usuario = null;
 
-        // Usuario y rol se guardan juntos: si algo falla, no queda nada a medias
-        await using var transaccion = await contexto.Database.BeginTransactionAsync();
-
-        var creacion = await gestorUsuarios.CreateAsync(usuario, modelo.Contrasena);
-        if (!creacion.Succeeded)
+        // Con EnableRetryOnFailure (Azure SQL), EF solo acepta transacciones dentro de la
+        // estrategia de ejecución: si hay un fallo transitorio, se repite todo el bloque desde cero.
+        var estrategia = contexto.Database.CreateExecutionStrategy();
+        var resultado = await estrategia.ExecuteAsync(async () =>
         {
-            AgregarErrores(creacion);
+            contexto.ChangeTracker.Clear(); // un reintento no arrastra cambios del intento anterior
+
+            usuario = new Usuario
+            {
+                UserName = correo,
+                Email = correo,
+                Nombre = modelo.Nombre.Trim(),
+                PhoneNumber = modelo.Telefono.Trim(),
+            };
+
+            // Usuario, rol y autorización de datos se guardan juntos: si algo falla, no queda nada a medias
+            await using var transaccion = await contexto.Database.BeginTransactionAsync();
+
+            var creacion = await gestorUsuarios.CreateAsync(usuario, modelo.Contrasena);
+            if (!creacion.Succeeded)
+                return creacion;
+
+            // RF-001: el registro público siempre asigna el rol Dueño
+            var asignacion = await gestorUsuarios.AddToRoleAsync(usuario, Roles.Dueno);
+            if (!asignacion.Succeeded)
+                return asignacion;
+
+            // TT-004: prueba de la autorización de datos (Ley 1581): quién, cuándo y qué versión de la política
+            contexto.Auditorias.Add(PoliticaDatos.Registrar(usuario.Id, PoliticaDatos.AccionAutorizacion));
+            await contexto.SaveChangesAsync();
+
+            await transaccion.CommitAsync();
+            return IdentityResult.Success;
+        });
+
+        if (!resultado.Succeeded)
+        {
+            AgregarErrores(resultado);
             return View(modelo);
         }
-
-        // RF-001: el registro público siempre asigna el rol Dueño
-        var asignacion = await gestorUsuarios.AddToRoleAsync(usuario, Roles.Dueno);
-        if (!asignacion.Succeeded)
-        {
-            AgregarErrores(asignacion);
-            return View(modelo);
-        }
-
-        // TT-004: prueba de la autorización de datos (Ley 1581): quién, cuándo y qué versión de la política
-        contexto.Auditorias.Add(PoliticaDatos.Registrar(usuario.Id, PoliticaDatos.AccionAutorizacion));
-        await contexto.SaveChangesAsync();
-
-        await transaccion.CommitAsync();
 
         // En el log solo va el Id: nunca correos ni contraseñas
-        logger.LogInformation("Nuevo dueño registrado. UsuarioId={UsuarioId}", usuario.Id);
+        logger.LogInformation("Nuevo dueño registrado. UsuarioId={UsuarioId}", usuario!.Id);
 
         await gestorSesion.SignInAsync(usuario, isPersistent: false);
         return RedirectToAction("Index", "Home");
@@ -86,26 +98,39 @@ public class CuentaController(
             return View(modelo);
 
         var correo = modelo.Correo.Trim();
+        var usuario = await gestorUsuarios.FindByEmailAsync(correo);
 
-        // RN-005: lockoutOnFailure cuenta cada intento fallido y bloquea al quinto
-        var resultado = await gestorSesion.PasswordSignInAsync(
-            correo, modelo.Contrasena, modelo.Recordarme, lockoutOnFailure: true);
-
-        if (resultado.Succeeded)
+        if (usuario is not null)
         {
-            var usuario = await gestorUsuarios.FindByEmailAsync(correo);
-            logger.LogInformation("Inicio de sesión correcto. UsuarioId={UsuarioId}", usuario?.Id);
-            return RedirigirDespuesDeIniciar(modelo.ReturnUrl);
-        }
+            // RN-005: lockoutOnFailure cuenta cada intento fallido y bloquea al quinto
+            var resultado = await gestorSesion.CheckPasswordSignInAsync(
+                usuario, modelo.Contrasena, lockoutOnFailure: true);
 
-        if (resultado.IsLockedOut)
-        {
-            var usuario = await gestorUsuarios.FindByEmailAsync(correo);
-            logger.LogWarning("Cuenta bloqueada por intentos fallidos. UsuarioId={UsuarioId}", usuario?.Id);
-            ModelState.AddModelError(string.Empty,
-                $"Su cuenta quedó bloqueada por {OpcionesIdentity.MaximoIntentosFallidos} intentos fallidos. " +
-                $"Intente de nuevo en {OpcionesIdentity.MinutosBloqueo} minutos.");
-            return View(modelo);
+            if (resultado.Succeeded)
+            {
+                // HU-015: una cuenta desactivada por el administrador no entra.
+                // Se avisa solo después de validar la contraseña, para no revelar qué cuentas existen.
+                if (!usuario.Activo)
+                {
+                    logger.LogWarning("Intento de inicio de sesión de una cuenta desactivada. UsuarioId={UsuarioId}", usuario.Id);
+                    ModelState.AddModelError(string.Empty,
+                        "Su cuenta está desactivada. Comuníquese con el administrador de la guardería.");
+                    return View(modelo);
+                }
+
+                await gestorSesion.SignInAsync(usuario, modelo.Recordarme);
+                logger.LogInformation("Inicio de sesión correcto. UsuarioId={UsuarioId}", usuario.Id);
+                return RedirigirDespuesDeIniciar(modelo.ReturnUrl);
+            }
+
+            if (resultado.IsLockedOut)
+            {
+                logger.LogWarning("Cuenta bloqueada por intentos fallidos. UsuarioId={UsuarioId}", usuario.Id);
+                ModelState.AddModelError(string.Empty,
+                    $"Su cuenta quedó bloqueada por {OpcionesIdentity.MaximoIntentosFallidos} intentos fallidos. " +
+                    $"Intente de nuevo en {OpcionesIdentity.MinutosBloqueo} minutos.");
+                return View(modelo);
+            }
         }
 
         // Mismo mensaje si el correo no existe o la contraseña está mal:

@@ -30,3 +30,6 @@ herramientas/bin/
 
 # HU-004: fotos de mascotas guardadas en desarrollo
 src/VacanJef.Web/App_Data/
+
+# TT-008: archivos de registro de Serilog
+src/VacanJef.Web/Logs/

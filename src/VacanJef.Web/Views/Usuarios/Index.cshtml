@@ -1,0 +1,152 @@
+@model VacanJef.Web.Models.Usuarios.UsuariosIndexViewModel
+@using VacanJef.Web.Servicios
+@{
+    ViewData["Title"] = "Usuarios";
+}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
+    <h1 class="h3 vj-titulo-pagina mb-0">Usuarios</h1>
+    <a asp-action="Crear" class="btn btn-primary">Crear cuenta de personal</a>
+</div>
+
+@if (TempData["Mensaje"] is string mensaje)
+{
+    <div class="alert alert-success" role="status">@mensaje</div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger" role="alert">@error</div>
+}
+
+<form asp-action="Index" method="get" class="vj-tarjeta row g-2 align-items-end mb-4">
+    <div class="col-md-6">
+        <label for="busqueda" class="form-label">Buscar por nombre o correo</label>
+        <input id="busqueda" name="busqueda" value="@Model.Busqueda" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label for="rol" class="form-label">Rol</label>
+        <select id="rol" name="rol" class="form-select">
+            <option value="">Todos</option>
+            @foreach (var rol in GestionUsuarios.RolesDelSistema)
+            {
+                if (Model.Rol == rol)
+                {
+                    <option value="@rol" selected>@GestionUsuarios.NombreRol(rol)</option>
+                }
+                else
+                {
+                    <option value="@rol">@GestionUsuarios.NombreRol(rol)</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-md-3 d-flex gap-2">
+        <button type="submit" class="btn btn-outline-primary flex-grow-1">Filtrar</button>
+        <a asp-action="Index" class="btn btn-link">Limpiar</a>
+    </div>
+</form>
+
+@if (Model.Usuarios.Count == 0)
+{
+    <div class="text-center vj-texto-suave py-5 border rounded">No hay usuarios con esos filtros.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Registro</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var usuario in Model.Usuarios)
+                {
+                    var esUsted = usuario.Id == Model.AdministradorId;
+                    <tr>
+                        <td>
+                            @usuario.Nombre
+                            @if (esUsted)
+                            {
+                                <span class="badge text-bg-light border ms-1">Usted</span>
+                            }
+                        </td>
+                        <td>@usuario.Correo</td>
+                        <td>
+                            @if (esUsted)
+                            {
+                                @GestionUsuarios.NombreRol(usuario.Rol)
+                            }
+                            else
+                            {
+                                <form asp-action="CambiarRol" asp-route-id="@usuario.Id" method="post" class="d-flex gap-1">
+                                    <label class="visually-hidden" for="rol-@usuario.Id">Rol de @usuario.Nombre</label>
+                                    <select id="rol-@usuario.Id" name="rol" class="form-select form-select-sm">
+                                        @foreach (var rol in GestionUsuarios.RolesDelSistema)
+                                        {
+                                            if (usuario.Rol == rol)
+                                            {
+                                                <option value="@rol" selected>@GestionUsuarios.NombreRol(rol)</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@rol">@GestionUsuarios.NombreRol(rol)</option>
+                                            }
+                                        }
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">Cambiar</button>
+                                </form>
+                            }
+                        </td>
+                        <td>
+                            @if (usuario.Activo)
+                            {
+                                <span class="badge text-bg-success">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="badge text-bg-secondary">Inactivo</span>
+                            }
+                            @if (usuario.Bloqueado)
+                            {
+                                <span class="badge text-bg-warning ms-1">Bloqueado</span>
+                            }
+                        </td>
+                        <td>@usuario.FechaRegistro.ToLocalTime().ToString("dd/MM/yyyy")</td>
+                        <td class="text-end">
+                            <div class="d-inline-flex gap-1">
+                                @if (usuario.Bloqueado)
+                                {
+                                    <form asp-action="Desbloquear" asp-route-id="@usuario.Id" method="post">
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary">Desbloquear</button>
+                                    </form>
+                                }
+                                @if (!esUsted)
+                                {
+                                    <a asp-action="RestablecerContrasena" asp-route-id="@usuario.Id"
+                                       class="btn btn-sm btn-outline-secondary">Restablecer contraseña</a>
+                                    <form asp-action="CambiarEstado" asp-route-id="@usuario.Id" method="post">
+                                        <input type="hidden" name="activo" value="@(usuario.Activo ? "false" : "true")" />
+                                        @if (usuario.Activo)
+                                        {
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Desactivar</button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" class="btn btn-sm btn-outline-success">Activar</button>
+                                        }
+                                    </form>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
