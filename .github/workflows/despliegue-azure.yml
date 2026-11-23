@@ -1,0 +1,78 @@
+# TT-003: despliegue en Azure App Service (app-vacanjef-3169901, Spain Central).
+# Se ejecuta cuando se une un PR a main (release) o a mano desde la pestaña Actions (rama main).
+# Autenticación con OIDC: la identidad administrada id-vacanjef-github confía solo en la rama main
+# de este repositorio (credencial federada github-main). No hay contraseñas guardadas en GitHub.
+# Secretos del repositorio: AZURE_CLIENT_ID, AZURE_TENANT_ID y AZURE_SUBSCRIPTION_ID.
+name: Despliegue en Azure
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # pedir el token OIDC a GitHub
+  contents: read
+
+concurrency:
+  group: despliegue-azure
+  cancel-in-progress: false
+
+env:
+  NOMBRE_APP: app-vacanjef-3169901
+
+jobs:
+  desplegar:
+    name: Desplegar en Azure App Service
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Compilar y probar
+        run: |
+          dotnet restore
+          dotnet build --no-restore -c Release
+          dotnet test --no-build -c Release
+
+      - name: Publicar la web
+        run: dotnet publish src/VacanJef.Web/VacanJef.Web.csproj -c Release -o publicacion
+
+      - name: Iniciar sesión en Azure (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Desplegar en App Service
+        id: despliegue
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.NOMBRE_APP }}
+          package: publicacion
+
+      # TT-008: /salud responde "Saludable" si la app arrancó y la base de datos acepta conexiones.
+      # Se reintenta hasta 5 minutos: el plan F1 arranca en frío y Azure SQL serverless se despierta.
+      - name: Verificar /salud
+        env:
+          URL_APP: ${{ steps.despliegue.outputs.webapp-url }}
+        run: |
+          for intento in $(seq 1 20); do
+            respuesta=$(curl -s --max-time 30 "$URL_APP/salud" || true)
+            echo "Intento $intento: $respuesta"
+            if echo "$respuesta" | grep -q '"estado":"Saludable"'; then
+              echo "La aplicación está en línea: $URL_APP"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::La aplicación no respondió Saludable en /salud. Revise la cadena de conexión, el firewall de Azure SQL y los registros del App Service."
+          exit 1
+
+      - name: Cerrar sesión en Azure
+        if: always()
+        run: az logout || true
