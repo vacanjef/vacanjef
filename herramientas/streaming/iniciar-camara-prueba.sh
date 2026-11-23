@@ -10,7 +10,7 @@ DESTINO="rtsp://localhost:8554/${CAMARA:-camara1}"
 CODIFICACION="-c:v libx264 -preset ultrafast -tune zerolatency -pix_fmt yuv420p -g 30 -bf 0"
 
 if [ "$1" = "webcam" ]; then
-  ffmpeg -f dshow -i video="$2" $CODIFICACION -f rtsp "$DESTINO"
+  ffmpeg -f dshow -video_size "${TAMANO:-640x480}" -framerate "${FPS:-30}" -i video="$2" $CODIFICACION -f rtsp "$DESTINO"
 else
   ffmpeg -re -f lavfi -i testsrc=size=1280x720:rate=30 $CODIFICACION -f rtsp "$DESTINO"
 fi
