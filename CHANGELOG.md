@@ -2,6 +2,28 @@
 
 Todas las versiones de VacanJef. Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y [versionado semántico](https://semver.org/lang/es/).
 
+## [0.2.0] - 2026-11-22 · Administración, seguridad y despliegue en Azure
+
+Segunda versión. Agrega la administración de usuarios, el cambio de contraseña, el panel de auditoría, la observabilidad de la aplicación y el despliegue automático en Azure.
+
+### Agregado
+
+- **HU-015** Gestión de usuarios por el administrador: crear cuentas de cuidador y administrador, cambiar rol, activar o desactivar y desbloquear; primer administrador desde variables de entorno (PR #30).
+- **HU-016** Cambio de contraseña obligatorio para cuentas nuevas o restablecidas, y restablecimiento por el administrador (PR #36).
+- **HU-017** Panel de auditoría con filtros y atención de solicitudes de supresión de datos (Ley 1581) (PR #40).
+- **TT-008** Health check en `/salud` (aplicación y base de datos) y registros con Serilog en consola y archivo diario, sin datos personales (PR #33).
+- **TT-003** Despliegue en Azure: reintentos automáticos de conexión con Azure SQL (PR #34), reconocimiento de HTTPS e IP real detrás del proxy de App Service (PR #42) y workflow de despliegue en App Service con OIDC, sin contraseñas, que verifica `/salud` (PR #44).
+- Plantillas de PR e issues según la Guía de Estructura y Evidencias (PR #32).
+
+### Corregido
+
+- El registro de dueños funciona con los reintentos de Azure SQL (PR #38).
+- README con el instructor actual del proyecto (PR #39).
+
+### Pendiente para el MVP (Hito 4)
+
+HU-005 reservas, HU-014, HU-006, HU-008 observaciones, HU-013, HU-009 notificaciones y HU-007 monitoreo en vivo.
+
 ## [0.1.0] - 2026-11-17 · Prototipo (Hito 3)
 
 Primera versión entregable. Incluye el acceso de dueños, el registro de mascotas con su salud y foto, la protección de datos personales y el entorno de desarrollo completo.
@@ -30,4 +52,5 @@ Primera versión entregable. Incluye el acceso de dueños, el registro de mascot
 
 HU-005 reservas, HU-014, HU-006, HU-008 observaciones, HU-013, HU-009 notificaciones, HU-007 monitoreo en vivo y el despliegue en la nube (TT-003).
 
+[0.2.0]: https://github.com/vacanjef/vacanjef/releases/tag/v0.2.0
 [0.1.0]: https://github.com/vacanjef/vacanjef/releases/tag/v0.1.0
