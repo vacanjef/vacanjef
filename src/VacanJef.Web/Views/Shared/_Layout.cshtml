@@ -1,7 +1,9 @@
 @using VacanJef.Web.Navegacion
+@inject IWebHostEnvironment Entorno
 @{
     var menu = MenuNavegacion.Para(User);
     var rutaActual = Context.Request.Path.Value;
+    var ambiente = IndicadorAmbiente.Etiqueta(Entorno);
 }
 <!DOCTYPE html>
 <html lang="es">
@@ -53,7 +55,7 @@
 
     <footer class="vj-pie py-3 mt-auto">
         <div class="container d-flex flex-column flex-md-row justify-content-between gap-2 small">
-            <span>&copy; @DateTime.Now.Year VacanJef · Guardería canina</span>
+            <span>&copy; @DateTime.Now.Year VacanJef · Guardería canina @if (ambiente is not null) { <span class="badge text-bg-warning ms-2">Ambiente: @ambiente</span> }</span>
             <a asp-controller="Home" asp-action="Privacy">Privacidad y tratamiento de datos</a>
         </div>
     </footer>
