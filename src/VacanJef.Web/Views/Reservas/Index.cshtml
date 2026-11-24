@@ -1,0 +1,55 @@
+@using VacanJef.Web.Models.Reservas
+@model IEnumerable<VacanJef.Web.Models.Reservas.ReservaResumenViewModel>
+@{
+    ViewData["Title"] = "Mis reservas";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Mis reservas</h1>
+    <a asp-action="Nueva" class="btn btn-primary">Nueva reserva</a>
+</div>
+
+@if (TempData["Mensaje"] is string mensaje)
+{
+    <div class="alert alert-success" role="status">@mensaje</div>
+}
+
+@if (!Model.Any())
+{
+    <div class="text-center text-muted py-5 border rounded">
+        <p class="mb-3">Todavía no tiene reservas.</p>
+        <a asp-action="Nueva" class="btn btn-outline-primary">Reservar una estadía</a>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Mascota</th>
+                    <th>Ingreso</th>
+                    <th>Salida</th>
+                    <th>Días</th>
+                    <th>Servicio</th>
+                    <th class="text-end">Costo total</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">@r.Mascota</td>
+                        <td>@PresentacionReservas.Fecha(r.FechaIngreso)</td>
+                        <td>@PresentacionReservas.Fecha(r.FechaSalida)</td>
+                        <td>@r.Dias</td>
+                        <td>@PresentacionReservas.Servicio(r.Servicio)</td>
+                        <td class="text-end">@PresentacionReservas.Pesos(r.CostoTotal)</td>
+                        <td><span class="badge @PresentacionReservas.ClaseEstado(r.Estado)">@r.Estado</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

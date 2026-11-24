@@ -1,0 +1,118 @@
+@using VacanJef.Core.Enums
+@using VacanJef.Web.Controllers
+@using VacanJef.Web.Models.Reservas
+@model VacanJef.Web.Models.Reservas.NuevaReservaViewModel
+@{
+    ViewData["Title"] = "Nueva reserva";
+    var minimo = PresentacionReservas.FechaFormulario(Model.Hoy);
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <h1 class="h3 mb-2">Nueva reserva</h1>
+        <p class="text-muted mb-4">Elija la mascota, las fechas y el servicio. Verá el costo total antes de confirmar.</p>
+
+        @if (!Model.Mascotas.Any())
+        {
+            <div class="alert alert-info">
+                Para reservar primero debe registrar una mascota.
+                <a asp-controller="Mascotas" asp-action="Registrar" class="alert-link">Registrar mascota</a>
+            </div>
+        }
+        else
+        {
+            <form asp-action="Nueva" method="post" novalidate>
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="MascotaId" class="form-label"></label>
+                        <select asp-for="MascotaId" asp-items="Model.Mascotas" class="form-select">
+                            <option value="">Seleccione...</option>
+                        </select>
+                        <span asp-validation-for="MascotaId" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Servicio" class="form-label"></label>
+                        <select asp-for="Servicio" class="form-select">
+                            @foreach (var tipo in Enum.GetValues<TipoServicio>())
+                            {
+                                <option value="@tipo">@PresentacionReservas.Servicio(tipo) · @PresentacionReservas.Pesos(Model.Tarifas[tipo]) por día</option>
+                            }
+                        </select>
+                        <span asp-validation-for="Servicio" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="FechaIngreso" class="form-label">Fecha de ingreso</label>
+                        <input type="date" id="FechaIngreso" name="FechaIngreso" class="form-control" min="@minimo"
+                               value="@PresentacionReservas.FechaFormulario(Model.FechaIngreso)" />
+                        <span asp-validation-for="FechaIngreso" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="FechaSalida" class="form-label">Fecha de salida</label>
+                        <input type="date" id="FechaSalida" name="FechaSalida" class="form-control" min="@minimo"
+                               value="@PresentacionReservas.FechaFormulario(Model.FechaSalida)" />
+                        <span asp-validation-for="FechaSalida" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <p class="small text-muted mt-3 mb-0">
+                    Se cobra por noche; si la mascota entra y sale el mismo día se cobra un día.
+                    Capacidad de la guardería: @Model.CapacidadDiaria mascotas por día.
+                </p>
+
+                <div class="d-flex gap-2 mt-3">
+                    <button type="submit" name="accion" value="@ReservasController.AccionCotizar" class="btn btn-outline-primary">
+                        Ver costo y disponibilidad
+                    </button>
+                    <a asp-action="Index" class="btn btn-link">Cancelar</a>
+                </div>
+
+                @if (Model.Cotizacion is { } cotizacion)
+                {
+                    <div class="card vj-tarjeta mt-4">
+                        <div class="card-body">
+                            <h2 class="h5 mb-3">Hay cupo disponible</h2>
+                            <dl class="row mb-3">
+                                <dt class="col-sm-5">Días</dt>
+                                <dd class="col-sm-7">@cotizacion.Dias</dd>
+                                <dt class="col-sm-5">Tarifa por día</dt>
+                                <dd class="col-sm-7">@PresentacionReservas.Pesos(cotizacion.TarifaDiaria)</dd>
+                                <dt class="col-sm-5">Costo total</dt>
+                                <dd class="col-sm-7 fs-5 fw-semibold">@PresentacionReservas.Pesos(cotizacion.CostoTotal)</dd>
+                            </dl>
+                            <button type="submit" name="accion" value="@ReservasController.AccionConfirmar" class="btn btn-primary">
+                                Confirmar reserva
+                            </button>
+                        </div>
+                    </div>
+                }
+            </form>
+
+            @if (Model.Alternativas.Any())
+            {
+                <div class="mt-4">
+                    <h2 class="h6">Fechas con cupo disponible</h2>
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach (var alternativa in Model.Alternativas)
+                        {
+                            <form asp-action="Nueva" method="post">
+                                <input type="hidden" name="MascotaId" value="@Model.MascotaId" />
+                                <input type="hidden" name="Servicio" value="@Model.Servicio" />
+                                <input type="hidden" name="FechaIngreso" value="@PresentacionReservas.FechaFormulario(alternativa.Ingreso)" />
+                                <input type="hidden" name="FechaSalida" value="@PresentacionReservas.FechaFormulario(alternativa.Salida)" />
+                                <button type="submit" name="accion" value="@ReservasController.AccionCotizar" class="btn btn-sm btn-outline-success">
+                                    Del @PresentacionReservas.Fecha(alternativa.Ingreso) al @PresentacionReservas.Fecha(alternativa.Salida)
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
