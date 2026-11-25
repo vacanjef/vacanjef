@@ -57,9 +57,9 @@ else
                         <td>@m.PesoKg.ToString("0.##") kg</td>
                         <td>@m.Sexo</td>
                         <td>
-                            <span class="badge text-bg-success">@m.Vacunas vacunas</span>
-                            <span class="badge text-bg-warning">@m.Alergias alergias</span>
-                            <span class="badge text-bg-info">@m.Medicamentos medicamentos</span>
+                            <span class="badge text-bg-success">@m.Vacunas @(m.Vacunas == 1 ? "vacuna" : "vacunas")</span>
+                            <span class="badge text-bg-warning">@m.Alergias @(m.Alergias == 1 ? "alergia" : "alergias")</span>
+                            <span class="badge text-bg-info">@m.Medicamentos @(m.Medicamentos == 1 ? "medicamento" : "medicamentos")</span>
                         </td>
                         <td class="text-end">
                             <a asp-action="CambiarFoto" asp-route-id="@m.Id" class="btn btn-sm btn-outline-secondary">

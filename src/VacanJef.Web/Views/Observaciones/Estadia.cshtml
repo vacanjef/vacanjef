@@ -1,0 +1,159 @@
+@using VacanJef.Core.Enums
+@using VacanJef.Web.Models.Observaciones
+@using VacanJef.Web.Models.Reservas
+@model EstadiaDetalleViewModel
+@{
+    ViewData["Title"] = $"Observaciones de {Model.Mascota}";
+    var corregidas = Model.Observaciones
+        .Where(o => o.CorrigeAId is not null)
+        .Select(o => o.CorrigeAId!.Value)
+        .ToHashSet();
+    var porId = Model.Observaciones.ToDictionary(o => o.Id);
+}
+
+<a asp-action="Index" class="small">&larr; Estadías activas</a>
+
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mt-2 mb-3">
+    <div>
+        <h1 class="h3 mb-1">@Model.Mascota <span class="text-muted fs-6">@Model.Raza</span></h1>
+        <p class="text-muted mb-0">
+            Dueño: @Model.Dueno · Estadía del @PresentacionReservas.Fecha(Model.FechaIngreso) al @PresentacionReservas.Fecha(Model.FechaSalida)
+        </p>
+    </div>
+    <span class="badge @PresentacionReservas.ClaseEstado(Model.Estado)">@Model.Estado</span>
+</div>
+
+@if (TempData["Mensaje"] is string mensaje)
+{
+    <div class="alert alert-success" role="status">@mensaje</div>
+}
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="h6">Información de salud</h2>
+                @if (Model.Salud.Count == 0)
+                {
+                    <p class="text-muted small mb-0">Sin registros de salud.</p>
+                }
+                else
+                {
+                    <ul class="list-unstyled small mb-0">
+                        @foreach (var s in Model.Salud)
+                        {
+                            <li>
+                                <span class="fw-semibold">@PresentacionObservaciones.Salud(s.Tipo):</span>
+                                @s.Descripcion
+                                @if (s.Fecha is DateOnly fecha)
+                                {
+                                    <span class="text-muted">(@PresentacionReservas.Fecha(fecha))</span>
+                                }
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+
+        @if (Model.PermiteRegistrar)
+        {
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="h6">@(Model.Corrigiendo is null ? "Nueva observación" : "Corregir observación")</h2>
+
+                    @if (Model.Corrigiendo is { } original)
+                    {
+                        <div class="alert alert-warning small">
+                            <p class="mb-1">Va a corregir la observación del @PresentacionObservaciones.FechaHora(original.CreadoEn):</p>
+                            <p class="mb-1 fst-italic">@original.Detalle</p>
+                            <p class="mb-0">La original no se borra: queda en el historial junto a la corrección.</p>
+                        </div>
+                    }
+
+                    <form asp-action="Estadia" asp-route-id="@Model.ReservaId" method="post" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+                        <input type="hidden" asp-for="Nueva.CorrigeAId" />
+
+                        <div class="mb-3">
+                            <label asp-for="Nueva.Tipo" class="form-label"></label>
+                            <select asp-for="Nueva.Tipo" class="form-select">
+                                <option value="">Seleccione...</option>
+                                @foreach (var tipo in Enum.GetValues<TipoObservacion>())
+                                {
+                                    <option value="@tipo">@PresentacionObservaciones.Tipo(tipo)</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Nueva.Tipo" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Nueva.Detalle" class="form-label"></label>
+                            <textarea asp-for="Nueva.Detalle" class="form-control" rows="4" maxlength="1000"></textarea>
+                            <div class="form-text">Máximo 1000 caracteres. Las observaciones no se editan ni se borran.</div>
+                            <span asp-validation-for="Nueva.Detalle" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">Registrar</button>
+                            @if (Model.Corrigiendo is not null)
+                            {
+                                <a asp-action="Estadia" asp-route-id="@Model.ReservaId" class="btn btn-link">Cancelar corrección</a>
+                            }
+                        </div>
+                    </form>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-secondary small">
+                Esta estadía no está activa: se pueden consultar sus observaciones, pero no registrar nuevas.
+            </div>
+        }
+    </div>
+
+    <div class="col-lg-7">
+        <h2 class="h5">Historial de la estadía</h2>
+
+        @if (Model.Observaciones.Count == 0)
+        {
+            <p class="text-muted">Todavía no hay observaciones en esta estadía.</p>
+        }
+
+        @foreach (var o in Model.Observaciones)
+        {
+            <div class="card mb-2">
+                <div class="card-body py-2">
+                    <div class="d-flex flex-wrap justify-content-between gap-2 small">
+                        <span>
+                            <span class="badge @PresentacionObservaciones.ClaseTipo(o.Tipo)">@PresentacionObservaciones.Tipo(o.Tipo)</span>
+                            @if (o.CorrigeAId is not null)
+                            {
+                                <span class="badge text-bg-light border">Corrección</span>
+                            }
+                            @if (corregidas.Contains(o.Id))
+                            {
+                                <span class="badge text-bg-light border">Corregida</span>
+                            }
+                        </span>
+                        <span class="text-muted">@PresentacionObservaciones.FechaHora(o.CreadoEn) · @o.Autor</span>
+                    </div>
+                    <p class="mb-1 mt-2">@o.Detalle</p>
+                    @if (o.CorrigeAId is int idOriginal && porId.TryGetValue(idOriginal, out var observacionOriginal))
+                    {
+                        <p class="small text-muted mb-1">Corrige la observación del @PresentacionObservaciones.FechaHora(observacionOriginal.CreadoEn).</p>
+                    }
+                    @if (Model.PermiteRegistrar)
+                    {
+                        <a asp-action="Estadia" asp-route-id="@Model.ReservaId" asp-route-corrigeA="@o.Id" class="small">Corregir</a>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
