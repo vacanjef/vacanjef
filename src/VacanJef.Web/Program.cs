@@ -89,6 +89,7 @@ app.UseForwardedHeaders();
 
 await SemillaRoles.CrearAsync(app.Services);
 await SemillaAdministrador.CrearAsync(app.Services, app.Configuration);
+await SemillaDemostracion.CrearAsync(app.Services, app.Configuration, app.Environment);
 
 if (!app.Environment.IsDevelopment())
 {

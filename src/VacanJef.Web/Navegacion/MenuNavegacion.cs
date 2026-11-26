@@ -29,6 +29,7 @@ public static class MenuNavegacion
         new("Usuarios", "/Usuarios"),
         new("Reservas", "/Reservas"),
         new("Cámaras", "/Camaras"),
+        new("Observaciones", "/Observaciones"),
         new("Auditoría", "/Auditoria"),
     ];
 

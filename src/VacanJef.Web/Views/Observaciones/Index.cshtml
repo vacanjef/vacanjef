@@ -1,0 +1,48 @@
+@using VacanJef.Web.Models.Observaciones
+@using VacanJef.Web.Models.Reservas
+@model List<EstadiaActivaViewModel>
+@{
+    ViewData["Title"] = "Observaciones";
+}
+
+<h1 class="h3 mb-1">Observaciones</h1>
+<p class="text-muted mb-4">Estadías activas. Elija una mascota para ver su información de salud y registrar observaciones.</p>
+
+@if (Model.Count == 0)
+{
+    <div class="text-center text-muted py-5 border rounded">
+        <p class="mb-0">No hay estadías activas en este momento. Una estadía se activa cuando se confirma el ingreso de la mascota.</p>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Mascota</th>
+                    <th>Dueño</th>
+                    <th>Estadía</th>
+                    <th>Observaciones</th>
+                    <th>Última</th>
+                    <th><span class="visually-hidden">Acciones</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var e in Model)
+                {
+                    <tr>
+                        <td><span class="fw-semibold">@e.Mascota</span> <span class="text-muted small">@e.Raza</span></td>
+                        <td>@e.Dueno</td>
+                        <td>@PresentacionReservas.Fecha(e.FechaIngreso) a @PresentacionReservas.Fecha(e.FechaSalida)</td>
+                        <td>@e.Observaciones</td>
+                        <td>@(e.UltimaObservacion is DateTime ultima ? PresentacionObservaciones.FechaHora(ultima) : "Ninguna")</td>
+                        <td class="text-end">
+                            <a asp-action="Estadia" asp-route-id="@e.ReservaId" class="btn btn-sm btn-primary">Ver y registrar</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
