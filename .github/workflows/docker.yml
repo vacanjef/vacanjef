@@ -11,7 +11,7 @@ jobs:
     name: Construir imágenes Docker
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Imagen de la web
         run: docker build --target web -t vacanjef-web:ci .
       - name: Imagen de migraciones
