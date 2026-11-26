@@ -42,7 +42,8 @@ public class ObservacionesController(
     [HttpPost]
     public async Task<IActionResult> Estadia(
         int id,
-        [Bind(Prefix = nameof(EstadiaDetalleViewModel.Nueva))] NuevaObservacionViewModel nueva)
+        [Bind(Prefix = nameof(EstadiaDetalleViewModel.Nueva))] NuevaObservacionViewModel nueva,
+        [FromServices] ServicioNotificaciones? notificaciones = null)
     {
         if (ObtenerUsuarioId() is not int autorId)
             return Challenge();
@@ -60,6 +61,10 @@ public class ObservacionesController(
                 logger.LogInformation(
                     "Observación registrada. ObservacionId={ObservacionId} ReservaId={ReservaId} AutorId={AutorId} Correccion={Correccion}",
                     resultado.Observacion!.Id, id, autorId, nueva.CorrigeAId is not null);
+
+                // HU-009: avisa al dueño de la mascota
+                if (notificaciones is not null)
+                    await notificaciones.NotificarObservacionAsync(resultado.Observacion!.Id);
 
                 TempData["Mensaje"] = nueva.CorrigeAId is null
                     ? "Se registró la observación."
