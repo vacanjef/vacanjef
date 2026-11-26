@@ -7,7 +7,7 @@ using VacanJef.Infrastructure.Data;
 
 namespace VacanJef.Web.Seguridad;
 
-// TT-009: datos ficticios para probar y demostrar el sistema (Ley 1581: nada es de personas reales).
+// TT-010: datos ficticios para probar y demostrar el sistema (Ley 1581: nada es de personas reales).
 // Solo en Desarrollo y solo con VACANJEF_DEMO=true. La contraseña de las cuentas viene de una variable.
 // Si las cuentas de demostración ya existen, no se carga nada de nuevo.
 public static class SemillaDemostracion
