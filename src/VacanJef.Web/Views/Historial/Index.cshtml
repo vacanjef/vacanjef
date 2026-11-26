@@ -1,0 +1,100 @@
+@using VacanJef.Web.Models.Historial
+@using VacanJef.Web.Models.Observaciones
+@using VacanJef.Web.Models.Reservas
+@model HistorialMascotaViewModel
+@{
+    ViewData["Title"] = $"Historial de {Model.Nombre}";
+}
+
+<a asp-controller="Mascotas" asp-action="Index" class="small">&larr; Mis mascotas</a>
+
+<div class="mt-2 mb-3">
+    <h1 class="h3 mb-1">Historial de @Model.Nombre <span class="text-muted fs-6">@Model.Raza</span></h1>
+    <p class="text-muted mb-0">@Model.Edad @(Model.Edad == 1 ? "año" : "años")</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="h6">Información de salud</h2>
+                @if (Model.Salud.Count == 0)
+                {
+                    <p class="text-muted small mb-0">No hay vacunas, alergias ni medicamentos registrados.</p>
+                }
+                else
+                {
+                    <ul class="list-unstyled small mb-0">
+                        @foreach (var s in Model.Salud)
+                        {
+                            <li class="mb-1">
+                                <span class="fw-semibold">@PresentacionObservaciones.Salud(s.Tipo):</span>
+                                @s.Descripcion
+                                @if (s.Fecha is DateOnly fecha)
+                                {
+                                    <span class="text-muted">(@PresentacionReservas.Fecha(fecha))</span>
+                                }
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <h2 class="h5">Observaciones de la guardería</h2>
+
+        @if (!Model.TieneObservaciones)
+        {
+            <div class="text-center text-muted py-4 border rounded">
+                @Model.Nombre todavía no tiene observaciones. Aparecen aquí cuando el personal las registra durante una estadía.
+            </div>
+        }
+        else
+        {
+            @foreach (var estadia in Model.Estadias.Where(e => e.Observaciones.Count > 0))
+            {
+                var corregidas = estadia.Observaciones
+                    .Where(o => o.CorrigeAId is not null)
+                    .Select(o => o.CorrigeAId!.Value)
+                    .ToHashSet();
+                var porId = estadia.Observaciones.ToDictionary(o => o.Id);
+
+                <section class="mb-4">
+                    <h3 class="h6 d-flex flex-wrap align-items-center gap-2">
+                        Estadía del @PresentacionReservas.Fecha(estadia.FechaIngreso) al @PresentacionReservas.Fecha(estadia.FechaSalida)
+                        <span class="badge @PresentacionReservas.ClaseEstado(estadia.Estado)">@estadia.Estado</span>
+                    </h3>
+
+                    @foreach (var o in estadia.Observaciones)
+                    {
+                        <div class="card mb-2">
+                            <div class="card-body py-2">
+                                <div class="d-flex flex-wrap justify-content-between gap-2 small">
+                                    <span>
+                                        <span class="badge @PresentacionObservaciones.ClaseTipo(o.Tipo)">@PresentacionObservaciones.Tipo(o.Tipo)</span>
+                                        @if (o.CorrigeAId is not null)
+                                        {
+                                            <span class="badge text-bg-light border">Corrección</span>
+                                        }
+                                        @if (corregidas.Contains(o.Id))
+                                        {
+                                            <span class="badge text-bg-light border">Corregida</span>
+                                        }
+                                    </span>
+                                    <span class="text-muted">@PresentacionObservaciones.FechaHora(o.CreadoEn) · @o.Autor</span>
+                                </div>
+                                <p class="mb-1 mt-2">@o.Detalle</p>
+                                @if (o.CorrigeAId is int idOriginal && porId.TryGetValue(idOriginal, out var original))
+                                {
+                                    <p class="small text-muted mb-0">Corrige la observación del @PresentacionObservaciones.FechaHora(original.CreadoEn).</p>
+                                }
+                            </div>
+                        </div>
+                    }
+                </section>
+            }
+        }
+    </div>
+</div>
