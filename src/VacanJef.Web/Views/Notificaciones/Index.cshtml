@@ -1,0 +1,63 @@
+@using VacanJef.Web.Models.Observaciones
+@model IReadOnlyList<VacanJef.Web.Models.Notificaciones.NotificacionItemViewModel>
+@{
+    ViewData["Title"] = "Notificaciones";
+    var noLeidas = Model.Count(n => !n.Leida);
+}
+
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
+    <div>
+        <h1 class="h3 mb-0 vj-titulo-pagina">Notificaciones</h1>
+        <p class="vj-texto-suave mb-0">
+            @(noLeidas == 0 ? "No tiene notificaciones sin leer." : noLeidas == 1 ? "Tiene 1 notificación sin leer." : $"Tiene {noLeidas} notificaciones sin leer.")
+        </p>
+    </div>
+    @if (noLeidas > 0)
+    {
+        <form asp-action="MarcarTodas" method="post">
+            <button type="submit" class="btn btn-outline-primary btn-sm">Marcar todas como leídas</button>
+        </form>
+    }
+</div>
+
+@if (TempData["Mensaje"] is string mensaje)
+{
+    <div class="alert alert-success" role="status">@mensaje</div>
+}
+
+@if (Model.Count == 0)
+{
+    <div class="text-center text-muted py-5 border rounded">
+        <p class="mb-0">Todavía no tiene notificaciones. Aquí verá, por ejemplo, la confirmación de sus reservas y las observaciones del cuidador.</p>
+    </div>
+}
+else
+{
+    <ul class="list-group">
+        @foreach (var n in Model)
+        {
+            <li class="list-group-item d-flex flex-column flex-md-row justify-content-between gap-2 @(n.Leida ? "" : "list-group-item-primary")">
+                <div>
+                    <div class="fw-semibold">
+                        @n.Titulo
+                        @if (!n.Leida)
+                        {
+                            <span class="badge text-bg-warning ms-1">Nueva</span>
+                        }
+                    </div>
+                    <div>@n.Mensaje</div>
+                    <small class="vj-texto-suave">@PresentacionObservaciones.FechaHora(n.CreadaEn)</small>
+                </div>
+                @if (n.Enlace is not null || !n.Leida)
+                {
+                    <form asp-action="Abrir" asp-route-id="@n.Id" method="post" class="align-self-md-center">
+                        <button type="submit" class="btn btn-sm @(n.Enlace is null ? "btn-outline-secondary" : "btn-primary")">
+                            @(n.Enlace is null ? "Marcar como leída" : "Ver")
+                        </button>
+                    </form>
+                }
+            </li>
+        }
+    </ul>
+    <p class="vj-texto-suave small mt-2">Se muestran las últimas @VacanJef.Web.Servicios.ServicioNotificaciones.MaximoLista notificaciones.</p>
+}

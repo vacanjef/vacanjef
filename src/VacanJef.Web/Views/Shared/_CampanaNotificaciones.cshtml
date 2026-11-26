@@ -1,0 +1,16 @@
+@* HU-009: campana con el número de notificaciones sin leer. notificaciones.js la actualiza en tiempo real. *@
+@using System.Security.Claims
+@inject VacanJef.Web.Servicios.ServicioNotificaciones Notificaciones
+@{
+    var noLeidas = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var usuarioId)
+        ? await Notificaciones.ContarNoLeidasAsync(usuarioId)
+        : 0;
+}
+<a class="nav-link position-relative" asp-controller="Notificaciones" asp-action="Index"
+   aria-label="Notificaciones sin leer: @noLeidas" title="Notificaciones">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z" />
+    </svg>
+    <span id="vj-contador-notificaciones"
+          class="position-absolute top-0 start-100 translate-middle badge rounded-pill text-bg-warning @(noLeidas == 0 ? "d-none" : "")">@(noLeidas > 99 ? "99+" : noLeidas.ToString())</span>
+</a>

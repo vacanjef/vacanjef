@@ -55,7 +55,8 @@ public class ReservasController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> Nueva(NuevaReservaViewModel modelo, string? accion)
+    public async Task<IActionResult> Nueva(NuevaReservaViewModel modelo, string? accion,
+        [FromServices] ServicioNotificaciones? notificaciones = null)
     {
         if (ObtenerDuenoId() is not int duenoId)
             return Challenge();
@@ -84,6 +85,10 @@ public class ReservasController(
                 // En el log solo van identificadores
                 logger.LogInformation("Reserva creada. ReservaId={ReservaId} MascotaId={MascotaId} DuenoId={DuenoId}",
                     reserva.Id, mascotaId, duenoId);
+
+                // HU-009: avisa al dueño y a los administradores (CU-002 pasos 5 y 6)
+                if (notificaciones is not null)
+                    await notificaciones.NotificarReservaConfirmadaAsync(reserva.Id);
 
                 TempData["Mensaje"] =
                     $"Reserva confirmada del {PresentacionReservas.Fecha(ingreso)} al {PresentacionReservas.Fecha(salida)}. " +

@@ -10,6 +10,7 @@ using VacanJef.Infrastructure.Data;
 using VacanJef.Web.Salud;
 using VacanJef.Web.Seguridad;
 using VacanJef.Web.Servicios;
+using VacanJef.Web.Notificaciones;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -58,6 +59,11 @@ builder.Services.Configure<SecurityStampValidatorOptions>(opciones =>
 
 builder.Services.AddScoped<GestionUsuarios>();
 builder.Services.AddScoped<ServicioContrasenas>();
+
+// HU-009: notificaciones guardadas en la base y enviadas en tiempo real con SignalR
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<IEmisorNotificaciones, EmisorNotificacionesSignalR>();
+builder.Services.AddScoped<ServicioNotificaciones>();
 
 builder.Services.ConfigureApplicationCookie(opciones =>
 {
@@ -117,6 +123,8 @@ app.MapHealthChecks(RespuestaSalud.Ruta, new HealthCheckOptions
 {
     ResponseWriter = RespuestaSalud.EscribirAsync,
 });
+
+app.MapHub<NotificacionesHub>(NotificacionesHub.Ruta);
 
 app.MapStaticAssets();
 app.MapControllerRoute(
