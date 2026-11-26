@@ -1,0 +1,36 @@
+@using VacanJef.Web.Models.GestionReservas
+@using VacanJef.Web.Models.Reservas
+@model ReservaAdminItem
+@{
+    ViewData["Title"] = $"Cancelar la reserva #{Model.Id}";
+}
+
+<a asp-action="Index" class="small">&larr; Gestión de reservas</a>
+<h1 class="h3 mt-2 mb-3">Cancelar la reserva #@Model.Id</h1>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <p class="mb-1"><span class="fw-semibold">Mascota:</span> @Model.Mascota</p>
+        <p class="mb-1"><span class="fw-semibold">Dueño:</span> @Model.Dueno (@Model.Correo)</p>
+        <p class="mb-1"><span class="fw-semibold">Fechas:</span> @PresentacionReservas.Fecha(Model.FechaIngreso) al @PresentacionReservas.Fecha(Model.FechaSalida)</p>
+        <p class="mb-1"><span class="fw-semibold">Servicio:</span> @PresentacionGestionReservas.Servicio(Model.Servicio) · @PresentacionReservas.Pesos(Model.CostoTotal)</p>
+        <p class="mb-0"><span class="fw-semibold">Estado:</span> <span class="badge @PresentacionReservas.ClaseEstado(Model.Estado)">@Model.Estado</span></p>
+    </div>
+</div>
+
+@if (Model.SePuedeCancelar)
+{
+    <div class="alert alert-warning">
+        La reserva quedará <strong>Cancelada</strong>, el cupo se libera y el dueño recibe una notificación. Esta acción no se puede deshacer.
+    </div>
+    <form asp-action="Cancelar" asp-route-id="@Model.Id" method="post" class="d-flex gap-2">
+        <button type="submit" class="btn btn-danger">Sí, cancelar la reserva</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Volver</a>
+    </form>
+}
+else
+{
+    <div class="alert alert-secondary">
+        Solo se cancelan reservas Confirmadas. Esta reserva está @Model.Estado.
+    </div>
+}
