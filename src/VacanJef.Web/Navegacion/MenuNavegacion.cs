@@ -27,7 +27,7 @@ public static class MenuNavegacion
     private static readonly IReadOnlyList<ElementoMenu> MenuAdministrador =
     [
         new("Usuarios", "/Usuarios"),
-        new("Reservas", "/Reservas"),
+        new("Reservas", "/GestionReservas"),
         new("Cámaras", "/Camaras"),
         new("Observaciones", "/Observaciones"),
         new("Auditoría", "/Auditoria"),

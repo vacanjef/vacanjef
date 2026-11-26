@@ -5,6 +5,7 @@ public static class EventosNotificacion
 {
     public const string ReservaConfirmada = "EVT-RESERVA-CONFIRMADA";      // al dueño (CU-002 paso 5)
     public const string ReservaNueva = "EVT-RESERVA-NUEVA";                // a los administradores (CU-002 paso 6)
+    public const string ReservaCancelada = "EVT-RESERVA-CANCELADA";   // al dueño (HU-006)
     public const string ObservacionRegistrada = "EVT-OBSERVACION";         // al dueño (HU-008)
     public const string ObservacionCorregida = "EVT-OBSERVACION-CORREGIDA"; // al dueño (HU-008, RN-006)
 }
