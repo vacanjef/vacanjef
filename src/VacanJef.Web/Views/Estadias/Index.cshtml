@@ -1,0 +1,169 @@
+@using VacanJef.Web.Models.Estadias
+@using VacanJef.Web.Models.Reservas
+@model VacanJef.Web.Models.Estadias.EstadiasPanelViewModel
+@{
+    ViewData["Title"] = "Estadías";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 vj-titulo-pagina mb-0">Estadías</h1>
+    <span class="vj-texto-suave">Hoy: @PresentacionReservas.Fecha(Model.Hoy)</span>
+</div>
+
+@if (TempData["Mensaje"] is string mensaje)
+{
+    <div class="alert alert-success" role="status">@mensaje</div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger" role="alert">@error</div>
+}
+
+@if (!Model.Camaras.Any())
+{
+    <div class="alert alert-warning" role="status">
+        No hay cámaras libres. Puede confirmar ingresos sin cámara y asignarla después.
+        @if (User.IsInRole(VacanJef.Core.Constantes.Roles.Administrador))
+        {
+            <a asp-controller="Camaras" asp-action="Index" class="alert-link">Gestionar cámaras</a>
+        }
+    </div>
+}
+
+<section class="vj-tarjeta mb-4" aria-labelledby="titulo-llegadas">
+    <h2 id="titulo-llegadas" class="h5 mb-3">Llegadas de hoy</h2>
+
+    @if (!Model.Llegadas.Any())
+    {
+        <p class="vj-texto-suave mb-0">No hay llegadas pendientes.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Mascota</th>
+                        <th>Dueño</th>
+                        <th>Fechas</th>
+                        <th>Servicio</th>
+                        <th>Confirmar ingreso</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var e in Model.Llegadas)
+                    {
+                        <tr>
+                            <td>
+                                <span class="fw-semibold">@e.Mascota</span>
+                                <span class="small vj-texto-suave d-block">@e.Raza</span>
+                            </td>
+                            <td>@e.Dueno</td>
+                            <td>
+                                @PresentacionReservas.Fecha(e.FechaIngreso) al @PresentacionReservas.Fecha(e.FechaSalida)
+                                @if (e.FechaIngreso < Model.Hoy)
+                                {
+                                    <span class="badge text-bg-warning ms-1">Atrasada</span>
+                                }
+                            </td>
+                            <td>@PresentacionReservas.Servicio(e.Servicio)</td>
+                            <td>
+                                <form asp-action="ConfirmarIngreso" asp-route-id="@e.ReservaId" method="post" class="d-flex gap-2">
+                                    <select name="camaraId" class="form-select form-select-sm" aria-label="Cámara para @e.Mascota">
+                                        <option value="">Sin cámara por ahora</option>
+                                        @foreach (var c in Model.Camaras)
+                                        {
+                                            <option value="@c.Id">@c.Nombre</option>
+                                        }
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-primary text-nowrap">Confirmar ingreso</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+<section class="vj-tarjeta mb-4" aria-labelledby="titulo-curso">
+    <h2 id="titulo-curso" class="h5 mb-3">Estadías en curso</h2>
+
+    @if (!Model.EnCurso.Any())
+    {
+        <p class="vj-texto-suave mb-0">No hay mascotas en la guardería.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Mascota</th>
+                        <th>Dueño</th>
+                        <th>Ingresó</th>
+                        <th>Salida prevista</th>
+                        <th>Cámara</th>
+                        <th><span class="visually-hidden">Acciones</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var e in Model.EnCurso)
+                    {
+                        <tr>
+                            <td>
+                                <span class="fw-semibold">@e.Mascota</span>
+                                <span class="small vj-texto-suave d-block">@e.Raza</span>
+                            </td>
+                            <td>@e.Dueno</td>
+                            <td class="text-nowrap">@EstadiasPanelViewModel.HoraColombia(e.IngresoReal)</td>
+                            <td class="text-nowrap">
+                                @PresentacionReservas.Fecha(e.FechaSalida)
+                                @if (e.FechaSalida == Model.Hoy)
+                                {
+                                    <span class="badge text-bg-info ms-1">Sale hoy</span>
+                                }
+                                else if (e.FechaSalida < Model.Hoy)
+                                {
+                                    <span class="badge text-bg-danger ms-1">Salida vencida</span>
+                                }
+                            </td>
+                            <td>
+                                @if (e.Camara is string camara)
+                                {
+                                    <span class="d-block mb-1">@camara</span>
+                                }
+                                @if (Model.Camaras.Any())
+                                {
+                                    <form asp-action="AsignarCamara" asp-route-id="@e.ReservaId" method="post" class="d-flex gap-2">
+                                        <select name="camaraId" class="form-select form-select-sm" aria-label="Cámara para @e.Mascota">
+                                            @foreach (var c in Model.Camaras)
+                                            {
+                                                <option value="@c.Id">@c.Nombre</option>
+                                            }
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-outline-primary text-nowrap">
+                                            @(e.Camara is null ? "Asignar" : "Cambiar")
+                                        </button>
+                                    </form>
+                                }
+                                else if (e.Camara is null)
+                                {
+                                    <span class="small vj-texto-suave">Sin cámara</span>
+                                }
+                            </td>
+                            <td class="text-end text-nowrap">
+                                <a asp-controller="Observaciones" asp-action="Estadia" asp-route-id="@e.ReservaId"
+                                   class="btn btn-sm btn-outline-secondary">Observaciones</a>
+                                <form asp-action="ConfirmarSalida" asp-route-id="@e.ReservaId" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Confirmar salida</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

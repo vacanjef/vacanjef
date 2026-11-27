@@ -2,6 +2,31 @@
 
 Todas las versiones de VacanJef. Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y [versionado semántico](https://semver.org/lang/es/).
 
+## [0.4.0] - 2026-11-27 · Estadías, notificaciones y gestión de reservas
+
+Cuarta versión. Completa el ciclo de una estadía: el administrador gestiona las reservas, el cuidador confirma el ingreso y la salida con la cámara asignada, y el dueño recibe notificaciones en tiempo real. Agrega respaldo y restauración probados y pruebas de integración de la aplicación completa.
+
+### Agregado
+
+- **HU-006** Gestión de reservas por el administrador: filtros, cancelación y ocupación por día (PR #65).
+- **HU-014** Estadías: el cuidador o el administrador confirman el ingreso (la reserva pasa a Activa) y la salida (Finalizada), y asignan una cámara libre; gestión de cámaras por el administrador. Cada acción queda en Auditoría (PR #71).
+- **HU-009** Notificaciones en la plataforma: reserva confirmada (dueño y administradores) y observación registrada o corregida (dueño, sin el detalle), en tiempo real con SignalR, con campana de no leídas y aviso emergente; marcar una o todas como leídas. El envío por correo queda para V1.1 (PR #62).
+- **TT-011** Respaldo y restauración: herramienta `herramientas/respaldo/respaldo.cs` que respalda la base local y las fotos y prueba la restauración en una base aparte, y guía `docs/respaldo-y-restauracion.md` con local, Docker y Azure (PR #67).
+- **TT-012** Pruebas de integración de la aplicación completa: cabeceras de seguridad, rutas protegidas, CSRF, cookie de sesión, roles y hub de notificaciones (PR #69).
+- **TT-003** Guía de despliegue en Azure `docs/despliegue/azure.md` y prueba de la URL pública con evidencias (PR #72).
+
+### Cambiado
+
+- Acciones de GitHub actualizadas a Node.js 24: checkout v6, setup-dotnet v5, upload-artifact v6 y azure/login v3 (PR #63).
+
+### Base de datos
+
+- Migración `HU009Notificaciones` (título, mensaje, enlace y fecha de lectura de las notificaciones). Ya aplicada en Azure SQL antes de esta versión.
+
+### Pendiente para el MVP (Hito 4)
+
+HU-007 monitoreo en vivo.
+
 ## [0.3.0] - 2026-11-26 · Reservas, observaciones e historial
 
 Tercera versión. El dueño reserva estadías para su mascota, el personal registra observaciones durante la estadía y el dueño consulta el historial de salud y de cuidado. Sin migraciones nuevas: la base de datos de Azure no requiere cambios.
@@ -73,6 +98,7 @@ Primera versión entregable. Incluye el acceso de dueños, el registro de mascot
 
 HU-005 reservas, HU-014, HU-006, HU-008 observaciones, HU-013, HU-009 notificaciones, HU-007 monitoreo en vivo y el despliegue en la nube (TT-003).
 
+[0.4.0]: https://github.com/vacanjef/vacanjef/releases/tag/v0.4.0
 [0.3.0]: https://github.com/vacanjef/vacanjef/releases/tag/v0.3.0
 [0.2.0]: https://github.com/vacanjef/vacanjef/releases/tag/v0.2.0
 [0.1.0]: https://github.com/vacanjef/vacanjef/releases/tag/v0.1.0
