@@ -129,3 +129,9 @@ Pasos para cada historia:
 4. Si `dev` avanzó mientras tanto: `git fetch origin` y `git merge origin/dev`, resolver conflictos y probar de nuevo.
 5. `git push -u origin feature/HU-xxx-descripcion` y abrir el PR hacia `dev` con `Closes #N` (el número del issue **propio**).
 6. Otro integrante revisa, aprueba y une el PR.
+
+## Licencia
+
+VacanJef se distribuye con la [licencia MIT](LICENSE). © 2026 equipo VacanJef (SENA, ADSO, ficha 3169901).
+
+Componentes de terceros incluidos en `wwwroot/lib`, cada uno con su propia licencia: Bootstrap, jQuery y el cliente de SignalR (MIT), y la fuente Inter (SIL Open Font License 1.1).

@@ -24,7 +24,7 @@ Cómo se respaldan los datos de VacanJef, cómo se prueba que un respaldo sirve 
 | --- | --- |
 | Antes de aplicar una migración nueva (`dotnet ef database update`) | Local |
 | Antes de preparar una release | Local |
-| Una vez por semana mientras se desarrolla | Local |
+| Una vez al día mientras se desarrolla (RPO ≤ 24 h) | Local |
 | Automático y continuo | Azure SQL (producción) |
 
 Se conservan los **7 respaldos más recientes**; al crear uno nuevo, la herramienta borra los más antiguos de la carpeta (solo los archivos `VacanJefDB_*.bak` y su `.zip`).
@@ -116,8 +116,8 @@ La contraseña es la de `VACANJEF_SA_PASSWORD` en `.env`. Si `/var/opt/mssql/bac
 
 | Ambiente | Pérdida de datos máxima aceptada (RPO) | Tiempo para recuperar (RTO) |
 | --- | --- | --- |
-| Local | Desde el último respaldo (máximo una semana, o desde antes de la última migración) | Lo que mida la prueba de restauración (anotar abajo) |
-| Producción | Minutos (respaldos automáticos de Azure) | Por medir si se hace una restauración en Azure |
+| Local | Desde el último respaldo: máximo 24 h (Arquitectura 8.11) | 49,5 s medidos el 26/11 (objetivo ≤ 4 h) |
+| Producción | Minutos (respaldos automáticos de Azure; objetivo ≤ 24 h) | Por medir si se hace una restauración en Azure (objetivo ≤ 4 h) |
 
 ## Registro de pruebas
 
