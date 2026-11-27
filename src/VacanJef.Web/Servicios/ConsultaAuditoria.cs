@@ -33,6 +33,12 @@ public class ConsultaAuditoria(VacanJefDbContext contexto)
         [GestionUsuarios.AccionDesbloquear] = "Desbloqueó una cuenta",
         ["CambioContrasena"] = "Cambió su contraseña",
         ["RestablecerContrasena"] = "Restableció la contraseña de un usuario",
+        [ServicioEstadias.AccionConfirmarIngreso] = "Confirmó el ingreso de una mascota",
+        [ServicioEstadias.AccionAsignarCamara] = "Asignó una cámara a una estadía",
+        [ServicioEstadias.AccionConfirmarSalida] = "Confirmó la salida de una mascota",
+        [ServicioCamaras.AccionCrear] = "Registró una cámara",
+        [ServicioCamaras.AccionActivar] = "Activó una cámara",
+        [ServicioCamaras.AccionDesactivar] = "Desactivó una cámara",
     };
 
     public static IEnumerable<KeyValuePair<string, string>> AccionesConocidas => Descripciones.OrderBy(d => d.Value);
