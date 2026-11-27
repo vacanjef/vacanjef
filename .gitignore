@@ -33,3 +33,6 @@ src/VacanJef.Web/App_Data/
 
 # TT-008: archivos de registro de Serilog
 src/VacanJef.Web/Logs/
+
+# TT-011: respaldos de la base (tienen datos personales; nunca al repositorio)
+*.bak
