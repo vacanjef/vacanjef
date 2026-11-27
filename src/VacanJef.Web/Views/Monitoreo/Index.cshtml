@@ -1,0 +1,51 @@
+@model IEnumerable<VacanJef.Web.Servicios.EstadiaMonitoreo>
+@{
+    ViewData["Title"] = "Monitoreo en vivo";
+    var esPersonal = User.IsInRole(VacanJef.Core.Constantes.Roles.Cuidador) || User.IsInRole(VacanJef.Core.Constantes.Roles.Administrador);
+}
+
+<h1 class="h3 vj-titulo-pagina mb-2">Monitoreo en vivo</h1>
+<p class="vj-texto-suave mb-4">
+    @(esPersonal
+        ? "Estadías en curso con cámara asignada."
+        : "Vea a su mascota mientras está en la guardería. La cámara solo está disponible durante la estadía.")
+</p>
+
+@if (!Model.Any())
+{
+    <div class="text-center vj-texto-suave py-5 border rounded">
+        <p class="mb-0">
+            @(esPersonal
+                ? "No hay estadías en curso."
+                : "Ninguna de sus mascotas tiene una estadía en curso en este momento.")
+        </p>
+    </div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var e in Model)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="vj-tarjeta h-100 d-flex flex-column">
+                    <h2 class="h5 mb-1">@e.Mascota</h2>
+                    @if (esPersonal)
+                    {
+                        <p class="small vj-texto-suave mb-2">Dueño: @e.Dueno</p>
+                    }
+                    <p class="mb-3">
+                        @if (e.Camara is string camara)
+                        {
+                            <span class="badge text-bg-success">Cámara: @camara</span>
+                        }
+                        else
+                        {
+                            <span class="badge text-bg-secondary">Sin cámara asignada</span>
+                        }
+                    </p>
+                    <a asp-action="Ver" asp-route-id="@e.ReservaId" class="btn btn-primary mt-auto">Ver en vivo</a>
+                </div>
+            </div>
+        }
+    </div>
+}
