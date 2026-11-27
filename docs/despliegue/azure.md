@@ -120,19 +120,19 @@ Aplicadas a la fecha: `Inicial` y `HU009Notificaciones`. HU-005, HU-006, HU-008,
 
 ## 6. Prueba de la URL pública
 
-Fecha de la prueba: 26/11/2026 · Responsable: Carlos Santiz · Navegador: __
+Fecha de la prueba: 26/11/2026 · Responsable: Carlos Santiz · Navegador: Chrome 131
 
 | # | Prueba | Resultado esperado | Resultado | Evidencia |
 | --- | --- | --- | --- | --- |
 | 1 | `curl -s $URL/salud` | `"estado":"Saludable"` y `base-de-datos` Saludable | ✅ Cumple: `{"estado":"Saludable","duracionMs":260,"componentes":{"base-de-datos":"Saludable"}}` | `img/azure-02-salud.png` |
 | 2 | `curl -sI http://...` (sin s) | Redirección 301/308 a HTTPS | ✅ Cumple: `HTTP/1.1 301 Moved Permanently` hacia `https://` | Salida del comando (texto) |
 | 3 | `curl -sI $URL` | Cabeceras `Strict-Transport-Security`, `Content-Security-Policy`, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy` | ✅ Cumple: las 5 presentes (HSTS `max-age=2592000`, `X-Frame-Options: DENY`, `nosniff`, `strict-origin-when-cross-origin`, CSP `default-src 'self'` y `frame-ancestors 'none'`) | Salida del comando (texto) |
-| 4 | Abrir la portada | Carga con candado HTTPS | __ | `img/azure-01-portada.png` |
-| 5 | Registrar un dueño de prueba | Cuenta creada | __ | `img/azure-03-registro.png` |
-| 6 | Iniciar sesión | Menú de dueño | __ | `img/azure-04-sesion.png` |
-| 7 | Registrar una mascota con foto | Se ve la foto | __ | `img/azure-05-mascota.png` |
-| 8 | Mis datos | Datos y política de privacidad | __ | `img/azure-06-mis-datos.png` |
-| 9 | 5 intentos con clave incorrecta (cuenta de prueba) | Bloqueo de 15 minutos | __ | `img/azure-07-bloqueo.png` |
+| 4 | Abrir la portada | Carga con candado HTTPS | ✅ Cumple: carga la portada con candado HTTPS | `img/azure-01-portada.png` |
+| 5 | Registrar un dueño de prueba | Cuenta creada | ✅ Cumple: cuenta `carlos.prueba@ejemplo.com` creada | `img/azure-03-registro.png` |
+| 6 | Iniciar sesión | Menú de dueño | ✅ Cumple: entra y muestra el menú de dueño, sin opciones de administrador | `img/azure-04-sesion.png` |
+| 7 | Registrar una mascota con foto | Se ve la foto | ✅ Cumple: mascota guardada y la foto se muestra | `img/azure-05-mascota.png` |
+| 8 | Mis datos | Datos y política de privacidad | ✅ Cumple: muestra los datos y la política de privacidad | `img/azure-06-mis-datos.png` |
+| 9 | 5 intentos con clave incorrecta (cuenta de prueba) | Bloqueo de 15 minutos | ✅ Cumple: al quinto intento la cuenta queda bloqueada | `img/azure-07-bloqueo.png` |
 
 Comandos:
 
