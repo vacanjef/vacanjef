@@ -1,0 +1,41 @@
+@model VacanJef.Web.Models.Monitoreo.MonitoreoVerViewModel
+@{
+    ViewData["Title"] = $"En vivo: {Model.Mascota}";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 vj-titulo-pagina mb-0">@Model.Mascota en vivo</h1>
+    <a asp-action="Index" class="btn btn-link">Volver</a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        @if (Model.UrlSenal is string urlSenal)
+        {
+            <div id="monitoreo" data-senal="@urlSenal">
+                <video id="video-en-vivo" class="w-100 rounded border bg-dark" autoplay muted playsinline controls
+                       aria-label="Video en vivo de @Model.Mascota"></video>
+                <p id="estado-monitoreo" class="small vj-texto-suave mt-2" role="status">Conectando con la cámara…</p>
+            </div>
+        }
+
+        <div id="respaldo-monitoreo" class="vj-tarjeta text-center" hidden="@(Model.UrlSenal is not null)">
+            <p class="fw-semibold mb-2">La cámara no está disponible en este momento.</p>
+            <p class="small vj-texto-suave">Intente de nuevo en unos minutos. Si el problema continúa, comuníquese con la guardería.</p>
+            @if (Model.MostrarFoto)
+            {
+                <img src="@Url.Action("Foto", "Mascotas", new { id = Model.MascotaId })" alt="Última fotografía de @Model.Mascota"
+                     class="img-fluid rounded border" width="480" />
+                <p class="small vj-texto-suave mt-2 mb-0">Última fotografía registrada</p>
+            }
+        </div>
+
+        <p class="small vj-texto-suave mt-3">
+            Por su seguridad, el enlace de la transmisión es temporal y cada acceso queda registrado.
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/monitoreo.js" asp-append-version="true"></script>
+}
