@@ -1,0 +1,38 @@
+@model VacanJef.Web.Models.Camaras.NuevaCamaraViewModel
+@{
+    ViewData["Title"] = "Registrar cámara";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <h1 class="h3 vj-titulo-pagina mb-3">Registrar cámara</h1>
+
+        <form asp-action="Crear" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="Nombre" class="form-label"></label>
+                <input asp-for="Nombre" class="form-control" placeholder="Ej. Patio 1" />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="UrlStream" class="form-label"></label>
+                <input asp-for="UrlStream" class="form-control" autocomplete="off" placeholder="rtsp://localhost:8554/camara1" />
+                <div class="form-text">
+                    Dirección que usa el servidor de video (MediaMTX). Es un dato sensible: no se muestra después de guardarla.
+                </div>
+                <span asp-validation-for="UrlStream" class="text-danger"></span>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Guardar cámara</button>
+                <a asp-action="Index" class="btn btn-link">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

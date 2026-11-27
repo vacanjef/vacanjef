@@ -28,6 +28,7 @@ public static class MenuNavegacion
     [
         new("Usuarios", "/Usuarios"),
         new("Reservas", "/GestionReservas"),
+        new("Estadías", "/Estadias"),
         new("Cámaras", "/Camaras"),
         new("Observaciones", "/Observaciones"),
         new("Auditoría", "/Auditoria"),
